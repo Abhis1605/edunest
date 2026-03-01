@@ -36,6 +36,11 @@ const UserSchema = new Schema({
         enum: ['avatar1', 'avatar2', 'avatar3', 'avatar4', 'avatar5', 'avatar6'],
         default: 'avatar1'
     }, 
+    schoolShortForm: {
+        type: String,
+        trim: true,
+        lowercase: true,
+    },
     isActive: {
         type: Boolean,
         default: true
