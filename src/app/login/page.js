@@ -33,6 +33,12 @@ export default function LoginPage() {
             const response = await fetch('/api/auth/session')
             const session = await response.json()
             const role = session?.user?.role
+            const isProfileComplete = session?.user?.isProfileComplete;
+
+            if (!isProfileComplete) {
+                router.push('/setup-profile')
+                return;
+            }
 
             // Redirect based on role
             if (role === 'admin') router.push('/dashboard/admin')

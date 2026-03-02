@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs'
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
-import Email from "next-auth/providers/email";
+
 
 export const authOptions = {
     providers: [
@@ -43,6 +43,7 @@ export const authOptions = {
                         email: user.email,
                         role: user.role,
                         avatar: user.avatar,
+                        isProfileComplete: user.isProfileComplete,
                     }
                 } catch (error) {
                     throw new Error(error.message)
@@ -57,6 +58,7 @@ export const authOptions = {
                 token.id = user.id;
                 token.role = user.role;
                 token.avatar = user.avatar;
+                token.isProfileComplete = user.isProfileComplete
             }
             return token
         },
@@ -65,6 +67,7 @@ export const authOptions = {
                 session.user.id = token.id;
                 session.user.role = token.role;
                 session.user.avatar = token.avatar;
+                session.user.isProfileComplete = token.isProfileComplete
             }
             return session
         }
