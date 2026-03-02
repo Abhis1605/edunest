@@ -44,13 +44,13 @@ export default function SetupProfilePage() {
 
     return (
         <div className="min-h-screen flex items-center 
-    justify-center bg-gray-50">
+    justify-center bg-[#699640]">
       <div className="bg-white p-8 rounded-xl shadow-md 
       w-full max-w-md">
 
         <h1 className="text-2xl font-bold text-center 
         text-gray-800 mb-2">
-          Welcome to EduNest!
+          Welcome to <span className="text-[#699640]">EduNest!</span>
         </h1>
         <p className="text-center text-gray-500 mb-6">
           Choose your avatar to get started
@@ -65,7 +65,7 @@ export default function SetupProfilePage() {
               className={`cursor-pointer rounded-xl p-2 border-2 
               transition-all ${
                 selectedAvatar === avatar.id
-                  ? 'border-indigo-500 bg-indigo-50'
+                  ? 'border-[#699640] bg-green-50'
                   : 'border-gray-200 hover:border-indigo-300'
               }`}
             >
@@ -84,8 +84,8 @@ export default function SetupProfilePage() {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2 
-          rounded-lg font-medium hover:bg-indigo-700 
+          className="w-full bg-[#16737E] text-white py-2 
+          rounded-lg font-medium hover:bg-[#2FA3B0] 
           transition-colors disabled:opacity-50"
         >
           {loading ? 'Saving...' : 'Continue'}
