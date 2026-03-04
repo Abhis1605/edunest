@@ -1,7 +1,7 @@
 'use client'
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
-import { Users, GraduationCap, Heart, Subtitles } from "lucide-react"
+import { Users, GraduationCap, UserCog2Icon  } from "lucide-react"
 import { api } from "@/lib/api"
 import StatCard from "@/components/shared/StatCard"
 
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
             title: "Total Teachers",
             value: loading ? '...' : stats.totalTeachers,
             Subtitle: "Active teachers",
-            icon: <Users className="h-5 w-5" />,
+            icon: <UserCog2Icon className="h-5 w-5" />,
             bgColor: 'bg-[#0E9EAD]/10',
             iconColor: 'text-[#0E9EAD]'
         },
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
             title: "Total Students",
             value: loading ? '...' : stats.totalStudents,
             Subtitle: "Active students",
-            icon: <Users className="h-5 w-5" />,
+            icon: <GraduationCap className="h-5 w-5" />,
             bgColor: 'bg-[#2EAF4D]/10',
             iconColor: 'text-[#2EAF4D]',
         },

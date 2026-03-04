@@ -12,10 +12,10 @@ import {
     FileText,
     MessageSquare,
     Download,
-    Heart,
     LogOut,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    UserCog2Icon
 } from 'lucide-react'
 import { useState } from "react";
 
@@ -23,9 +23,9 @@ import { useState } from "react";
 const navLinks = {
     admin: [
         { label: "Dashboard", href: "/dashboard/admin", icon: LayoutDashboard },
-        { label: "Teachers", href: "/dashboard/admin/teachers", icon: Users },
+        { label: "Teachers", href: "/dashboard/admin/teachers", icon: UserCog2Icon },
         { label: "Students", href: "/dashboard/admin/students", icon: GraduationCap },
-        { label: "Parents", href: "/dashboard/admin/parents", icon: Heart }
+        { label: "Parents", href: "/dashboard/admin/parents", icon: Users }
     ],
     teacher: [
         { label: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
