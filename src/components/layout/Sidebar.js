@@ -69,7 +69,7 @@ export default function Sidebar({ onToggle }){
         <div className={`h-screen  bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col transition-all duration-300 ${isOpen ? 'w-45' : 'w-`10'}`}>
            
             {/* Logo Part */}
-            <div className="p-2 border-b border-gray-200 flex justify-center items-center h-25">
+            <div className="p-2 border-b border-gray-200 flex justify-center items-center h-22">
                 {
                     isOpen ? (
                         <Image src="/Images/logo.png" width={250} height={80} alt='EduNest-logo' className="object-contain" />
