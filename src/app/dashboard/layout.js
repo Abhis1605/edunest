@@ -7,8 +7,8 @@ export default function Layout({ children }) {
     const [isOpen, setIsOpen] = useState(true)
     return (
         <div className="flex">
-            <Sidebar onToggle={() => setIsOpen(open)} />
-            <div className={`flex-1 p-6 transition-all duration-300 ${ isOpen ? 'ml-64' : 'ml-16' }`}>
+            <Sidebar onToggle={(newState) => setIsOpen(newState)} />
+            <div className={`flex-1 p-6 transition-all duration-300 ${ isOpen ? 'ml-64' : 'ml-25' }`}>
                 {children}
             </div>
         </div>

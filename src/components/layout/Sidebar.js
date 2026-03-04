@@ -52,7 +52,7 @@ const navLinks = {
     ]
 }
 
-export default function Sidebar(){
+export default function Sidebar({ onToggle }){
     const pathname = usePathname()
     const { data: session } = useSession()
     const role = session?.user?.role
@@ -60,20 +60,21 @@ export default function Sidebar(){
     const [isOpen, setIsOpen] = useState(true)
 
     const handleToggle = () => {
-        setIsOpen(!isOpen)
-        onToggle && onToggle(!isOpen)
+        const newState = !isOpen
+        setIsOpen(newState)
+        onToggle && onToggle(newState)
     }
 
     return (
-        <div className={`h-screen  bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col transition-all duration-300 ${isOpen ? 'w-50' : 'w-25'}`}>
+        <div className={`h-screen  bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col transition-all duration-300 ${isOpen ? 'w-45' : 'w-`10'}`}>
            
             {/* Logo Part */}
             <div className="p-2 border-b border-gray-200 flex justify-center items-center h-25">
                 {
                     isOpen ? (
-                        <Image src="/Images/logo.png" width={200} height={50} alt='EduNest-logo' className="object-contain" />
+                        <Image src="/Images/logo.png" width={250} height={80} alt='EduNest-logo' className="object-contain" />
                     ) : (
-                        <Image src="/Images/logo-sidebar.jpg" width={100} height={100} alt='EduNest-logo' className="object-contain" />
+                        <Image src="/Images/logo-sidebar.png" width={50} height={50} alt='EduNest-logo' className="object-contain" />
                     )
                 }
             </div>
