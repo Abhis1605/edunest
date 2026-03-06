@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
-import { Users, Plus } from "lucide-react"
+import { Users, Plus, Phone } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import AddUserDrawer from "@/components/admin/AddUserDrawer"
+import FormInput from "@/components/admin/FormInput"
+import FormSelect from "@/components/admin/FormSelect"
 
 
 export default function TeachersPage() {
@@ -51,6 +53,15 @@ export default function TeachersPage() {
                 submitting={submitting}
                 onSubmit={handleSubmit}
             >
+                <FormInput label="Full Name" name="name" placeholder="Enter teacher name" required />
+
+                <FormInput label={Phone} name="phone" placeholder="Enter phone number" />
+
+                <FormSelect label="Subject" name="subjectName" placholder="e.g. Mathematics" required />
+
+                <FormSelect label="Class" name="class" placeholder="Select class" required  />
+
+                <FormSelect label="Section" name="section" placholder="Select section" required />
 
             </AddUserDrawer>
 

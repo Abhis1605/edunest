@@ -1,7 +1,21 @@
-export default function FormSelect() {
+export default function FormSelect({
+    label, name, value, onChange, options, placholder, required
+}) {
     return (
-        <h1>
-            Form Select
-        </h1>
+        <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+                {label} {required && '*'}
+            </label>
+            <select>
+                <option value=''>{placholder}</option>
+                {
+                    options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                        </option>
+                    ))
+                }
+            </select>
+        </div>
     )
 }
