@@ -66,7 +66,7 @@ export default function Sidebar({ onToggle }){
     }
 
     return (
-        <div className={`h-screen  bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col transition-all duration-300 ${isOpen ? 'w-45' : 'w-`10'}`}>
+        <div className={`h-screen  bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col transition-all dark:bg-background duration-300 ${isOpen ? 'w-45' : 'w-`10'}`}>
            
             {/* Logo Part */}
             <div className="p-2 border-b border-gray-200 flex justify-center items-center h-22">

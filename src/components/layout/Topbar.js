@@ -35,13 +35,13 @@ export default function Topbar() {
     }
 
     return (
-        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10">
+        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10 dark:border-gray-700 dark:bg-background">
 
             <div>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                     Welcome back
                 </p>
-                <h2 className="text-base font-semibold text-gray-800">
+                <h2 className="text-base font-semibold text-gray-800 dark:text-white">
                     { session?.user?.name} 👋
                 </h2>
             </div>
@@ -51,15 +51,15 @@ export default function Topbar() {
             <div className="flex items-center gap-2">
 
                 {/* Theme Toggle */}
-                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                    {isDark ? <Sun className="h-5 w-5 text-gray-600" /> 
+                <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors dark:bg-gray-800 dark:hover:bg-gray-700">
+                    {isDark ? <Sun className="h-5 w-5 text-gray-600 dark:text-gray-300" /> 
                     : <Moon className="h-5 w-5 text-gray-600" />
                 }
                 </button>
 
                 {/* Bell */}
-                <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <Bell className="h-5 w-5 text-gray-600" />
+                <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors dark:bg-gray-800 dark:hover:bg-gray-700">
+                    <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                 </button>
 
                 <div className="h-9 w-9 rounded-full overflow-hidden border-2 border-[#0E9EAD]/30 cursor-pointer">
