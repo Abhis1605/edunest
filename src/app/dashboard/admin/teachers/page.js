@@ -8,6 +8,14 @@ import AddUserDrawer from "@/components/admin/AddUserDrawer"
 
 
 export default function TeachersPage() {
+    const [showDrawer, setShowDrawer] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
+
+
+    const handleSubmit = async () => {
+
+    }
+
     return (
         <div>
 
@@ -25,15 +33,25 @@ export default function TeachersPage() {
                 </div>
             </div>
 
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#0E9EAD] rounded-lg text-white text-sm font-medium hover:bg-[#0C8A98] transition-colors">
+            <button onClick={() => {
+                setShowDrawer(true)
+            }} className="flex items-center gap-2 px-4 py-2 bg-[#0E9EAD] rounded-lg text-white text-sm font-medium hover:bg-[#0C8A98] transition-colors">
                 <Plus className="h-4 w-4" />
                 Add Teacher
             </button>
 
 
 
-            <AddUserDrawer>
-                
+            <AddUserDrawer
+                open={showDrawer}
+                onOpenChange={setShowDrawer}
+                title="Add New Teacher"
+                description="Fill details. Email and password auto generated."
+                onAddAnother={() => {}}
+                submitting={submitting}
+                onSubmit={handleSubmit}
+            >
+
             </AddUserDrawer>
 
         </div>
