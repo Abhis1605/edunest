@@ -75,7 +75,7 @@ export default function LoginPage() {
                     </label>
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#16737E] mb-2"
+                    className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#16737E] mb-2"
                     />
                 </div>
 
@@ -83,7 +83,7 @@ export default function LoginPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Password :
                     </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#16737E]" />
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#16737E] text-black" />
                 </div>
 
                 <button onClick={handleLogin} disabled={loading} className="w-full bg-[#16737E] text-white py-2 rounded-lg font-medium hover:bg-[#2FA3B0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2">
