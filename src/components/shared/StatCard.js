@@ -15,7 +15,7 @@ export default function StatCard({ title, value, subtitle, icon, bgColor, iconCo
             </CardHeader>
             <CardContent>
                 <p className="text-3xl font-bold text-gray-800">
-                    {value}
+                    {value ?? '0'}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                     {subtitle}

@@ -6,10 +6,10 @@ import Image from "next/image"
 
 export default function LoginPage() {
     const router = useRouter()
-    const [email, setEmail] = useState()
-    const [password, setPassword] = useState()
-    const [error, setError] = useState()
-    const [loading, setLoading] = useState()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const handleLogin = async (e) => {
         e.preventDefault()
@@ -57,7 +57,7 @@ export default function LoginPage() {
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
 
                 <div className="flex justify-center mb-5">
-                    <Image src='/Images/logo.png' alt="EduNest-Logo" width={200} height={80} className="object-contain"
+                    <Image src='/Images/logo.png' alt="EduNest-Logo" width={150} height={80} className="object-contain"
                      />
                 </div>
 

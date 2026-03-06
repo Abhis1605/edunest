@@ -72,7 +72,7 @@ export default function Sidebar({ onToggle }){
             <div className="p-2 border-b border-gray-200 flex justify-center items-center h-22">
                 {
                     isOpen ? (
-                        <Image src="/Images/logo.png" width={250} height={80} alt='EduNest-logo' className="object-contain" />
+                        <Image src="/Images/logo.png" width={140} height={0} alt='EduNest-logo' className="object-contain" />
                     ) : (
                         <Image src="/Images/logo-sidebar.png" width={50} height={50} alt='EduNest-logo' className="object-contain" />
                     )
