@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import SessionWrapper from '@/components/shared/SessionWrapper'
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,6 +16,7 @@ export default function RootLayout({ children }){
       <body className={inter.className}>
         <SessionWrapper>
           {children}
+          <Toaster richColors position="top-right" />
         </SessionWrapper>
       </body>
     </html>
