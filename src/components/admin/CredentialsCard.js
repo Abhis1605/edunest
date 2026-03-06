@@ -6,6 +6,16 @@ export default function CredentialsCard({
     credentials, onAddAnother, onClose
 }) {
     const [copied, setCopied] = useState(false)
+
+    const copyCredentials = () => {
+        const text = `Email: ${credentials.email}\nPassword: ${credentials.password}`
+        navigator.clipboard.writeText(text)
+        setCopied(true)
+        setTimeout(() => {
+            setCopied(false)
+        }, 2000);
+    }
+
     return (
         <div className="space-y-4">
 
@@ -31,8 +41,8 @@ export default function CredentialsCard({
 
             {/* Button */}
             <div className="flex gap-2 pt-2">
-                
-                <button className="flex items-center gap-2 px-3 py-2 bg-[#0E9EAD] text-white rounded-lg text-sm hover:[#0C8A98] transition-colors">
+
+                <button onClick={copyCredentials} className="flex items-center gap-2 px-3 py-2 bg-[#0E9EAD] text-white rounded-lg text-sm hover:[#0C8A98] transition-colors">
                     { copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} 
                     {copied ? "Copied" : "Copy" }
                 </button>
