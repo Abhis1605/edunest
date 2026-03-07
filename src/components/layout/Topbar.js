@@ -15,11 +15,17 @@ const avatarMap = {
 
 export default function Topbar() {
     const { data: session} = useSession()
-    const [isDark, setIsDark] = useState(false)
+    const [isDark, setIsDark] = useState(true)
 
     useEffect(() => {
         const saved = localStorage.getItem('theme')
-        if (saved === 'dark') setIsDark(true)
+        if (saved === 'light') {
+            setIsDark(false)
+            document.documentElement.classList.remove('dark')
+        } else {
+            setIsDark(true)
+            document.documentElement.classList.add('dark')
+        }
     }, [])
 
     const toggleTheme = () => {

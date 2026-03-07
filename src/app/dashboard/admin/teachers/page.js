@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
-import { Users, Plus, Phone, Section, Key } from "lucide-react"
+import { Users, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import AddUserDrawer from "@/components/admin/AddUserDrawer"
 import FormInput from "@/components/admin/FormInput"
@@ -150,6 +150,7 @@ export default function TeachersPage() {
                 onOpenChange={setShowDrawer}
                 title="Add New Teacher"
                 description="Fill details. Email and password auto generated."
+                credentials={credentials}
                 onAddAnother={() => setCredentials(null)}
                 submitting={submitting}
                 onSubmit={handleSubmit}
