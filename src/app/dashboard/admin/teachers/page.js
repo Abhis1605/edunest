@@ -117,15 +117,18 @@ export default function TeachersPage() {
                     </p>
 
                 </div>
-            </div>
 
-            <button onClick={() => {
+                <button onClick={() => {
                 setShowDrawer(true)
                 setCredentials(null)
             }} className="flex items-center gap-2 px-4 py-2 bg-[#0E9EAD] rounded-lg text-white text-sm font-medium hover:bg-[#0C8A98] transition-colors">
                 <Plus className="h-4 w-4" />
                 Add Teacher
             </button>
+            
+            </div>
+
+            
 
 
             {/* Teachers Table */}
@@ -147,19 +150,33 @@ export default function TeachersPage() {
                 onOpenChange={setShowDrawer}
                 title="Add New Teacher"
                 description="Fill details. Email and password auto generated."
-                onAddAnother={() => {}}
+                onAddAnother={() => setCredentials(null)}
                 submitting={submitting}
                 onSubmit={handleSubmit}
             >
-                <FormInput label="Full Name" name="name" placeholder="Enter teacher name" required />
+                <FormInput value={formData.name} onChange={handleChange} label="Full Name" name="name" placeholder="Enter teacher name" required />
 
-                <FormInput label={Phone} name="phone" placeholder="Enter phone number" />
+                <FormInput label="Phone" name="phone" placeholder="Enter phone number"  onChange={handleChange} value={formData.phone} />
 
-                <FormSelect label="Subject" name="subjectName" placholder="e.g. Mathematics" required />
+                <FormSelect label="Gender" name="gender" value={formData.gender} onChange={handleChange} placeholder="Select gender" required options={[
+                    { value: "male", label: "Male"},
+                    { value: "female", label: "Female" },
+                    { value: "other", label: "Other" }
+                ]} />
 
-                <FormSelect label="Class" name="class" placeholder="Select class" required  />
+                <FormInput label="Subject" name="subjectName" placeholder="e.g. Mathematics" required value={formData.subjectName} onChange={handleChange} />
 
-                <FormSelect label="Section" name="section" placholder="Select section" required />
+                <FormSelect label="Class" name="class" placeholder="Select class" required value={formData.class} onChange={handleChange}  options={[
+                    8,9,10
+                ].map(c => ({
+                    value: String(c), label: `Class ${c}`
+                }))}  />
+
+                <FormSelect label="Section" name="section" placeholder="Select section" required  value={formData.section} onChange={handleChange} options={[
+                    "A", "B" 
+                ].map(s => ({
+                    value: s, label: `Section ${s}`
+                }))}/>
 
             </AddUserDrawer>
 
