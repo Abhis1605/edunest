@@ -1,30 +1,29 @@
 import { Section } from "lucide-react";
 import mongoose, { mongo, Schema } from "mongoose";
 
+const AssignmentSchema = new Schema({
+    subjectName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    class: {
+        type: String,
+        required: true,
+    },
+    section: {
+        type: String,
+        required: true,
+    }
+})
+
 const TeacherSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
     }, 
-    subjects: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Subject',
-        }
-    ],
-    assignedClasses: [
-        {
-            class: {
-                type: String,
-                trim: true,
-            }, 
-            section: {
-                type: String,
-                trim: true
-            },
-        }
-    ],
+    assignments: [AssignmentSchema],
     isActive: {
         type: Boolean,
         default: true
