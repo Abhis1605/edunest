@@ -139,14 +139,25 @@ export default function TeachersPage() {
     }
 
     const handleDelete = async (teacherId) => {
-        if (!confirm('Are you sure you want to delete this teacher?')) return
-        try {
-            await api.delete(`/api/admin/delete-teacher?id=${teacherId}`)
-            toast.success('Teacher deleted successfully')
-            fetchTeachers()
-        } catch (error) {
-            toast.error("Failed to delete teacher")
-        }
+        toast('Are you sure you want to delete this teacher?', {
+            action: {
+                label: "Delete",
+                onClick: async () => {
+                    try {
+                        await api.delete(`/api/admin/delete-teacher?id=${teacherId}`)
+                        toast.success('Teacher deleted successfully')
+                        fetchTeachers()
+                    } catch (error) {
+                        toast.error('Failed to delete teacher')
+                    }
+                }
+            },
+            cancel: {
+                label: 'Cancel',
+                onClick: () => {}
+            },
+            duration: 5000
+        })
     }
 
     const handleSubmit = async () => {
