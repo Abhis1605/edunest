@@ -6,7 +6,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { generateCredentials } from "@/lib/generateCredentials";
 import bcrypt from 'bcryptjs'
-import Credentials from "next-auth/providers/credentials";
 
 export async function POST(request) {
     try {
@@ -20,13 +19,19 @@ export async function POST(request) {
         }
 
         const body = await request.json()
-        const { name, phone, gender, subjectName, class:cls, section} = body
+        const { name, phone, gender, assignments } = body
+
+        if (!assignments || assignments.length === 0 ){
+            return Response.json({
+                message: "At least one assignment is required"
+            }, { status: 400 })
+        }
         
         const admin = await User.findById(session.user.id)
-        console.log('Admin found:', admin)
-        console.log('ShortForm', admin?.schoolShortform)
+        // console.log('Admin found:', admin)
+        // console.log('ShortForm', admin?.schoolShortform)
         const shortform = (admin.schoolShortForm || 'school')
-        console.log('final shortform', shortform)
+        // console.log('final shortform', shortform)
 
         const teacherCount = await User.countDocuments({
             role: "teacher"
@@ -64,21 +69,8 @@ export async function POST(request) {
         //create Teacher
         const newTeacher = await Teacher.create({
             userId: newUser._id,
-            assignedClasses: [{ class: cls, section }],
+            assignments: assignments,
             isActive: true
-        })
-
-        //create subject
-        const newSubject = await Subject.create({
-            name: subjectName,
-            teacherId: newTeacher._id,
-            class: cls,
-            section,
-            isActive: true,
-        })
-
-        await Teacher.findByIdAndUpdate(newTeacher._id, {
-            subjects: [newSubject._id]
         })
 
         return Response.json({
