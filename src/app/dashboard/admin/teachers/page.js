@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
-import { Users, Plus } from "lucide-react"
+import { Users, Plus, User, Phone, Mail, Copy, Check} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import AddUserDrawer from "@/components/admin/AddUserDrawer"
 import FormInput from "@/components/admin/FormInput"
@@ -10,6 +10,7 @@ import FormSelect from "@/components/admin/FormSelect"
 import { toast } from "sonner"
 import DataTable from "@/components/admin/DataTable"
 import AssignmentRows from "@/components/admin/AssignmentRows"
+import { Sheet, SheetContent,SheetHeader, SheetTitle,  } from "@/components/ui/sheet"
 
 const initialForm = {
     name: "",
@@ -18,7 +19,21 @@ const initialForm = {
     assignments: [{ subjectName: '', class: '', section: '' }]
 }
 
-const columns = [
+
+
+export default function TeachersPage() {
+    const [teachers, setTeachers] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [showDrawer, setShowDrawer] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
+    const [credentials, setCredentials] = useState(null)
+    const [editingTeacher, setEditingTeacher] = useState(null)
+    const [formData, setFormData] = useState(initialForm)
+
+    const [viewingTeacher, setViewingTeacher] = useState(null)
+    const [ copied, setCopied] = useState(false)
+
+    const columns = [
     {
         key: "name",
         label: "Name",
@@ -62,6 +77,11 @@ const columns = [
         label: "Actions",
         render: (row) => (
             <div className="flex items-center gap-2">
+                <button onClick={() => setViewingTeacher(row)} 
+                        className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition-colors"
+                    >
+                    View
+                </button>
                 <button onClick={() => handleEdit(row)} 
                     className="text-xs px-2 py-1 rounded bg-[#0E9EAD]/10 text-[#0E9EAD] hover:bg-[#0E9EAD]/20 transition-colors"
                     >
@@ -77,14 +97,15 @@ const columns = [
     }
 ]
 
-export default function TeachersPage() {
-    const [teachers, setTeachers] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [showDrawer, setShowDrawer] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
-    const [credentials, setCredentials] = useState(null)
-    const [editingTeacher, setEditingTeacher] = useState(null)
-    const [formData, setFormData] = useState(initialForm)
+    const copyCredentials = (email) => {
+        const password = email?.replace('@edunest.com', '@edunest')
+        const text = `Email: ${email}\nPassword: ${password}`
+        navigator.clipboard.writeText(text)
+        setCopied(true)
+        setTimeout(() => {
+            setCopied(false)
+        }, 2000);
+    }
 
     useEffect(() => {
         fetchTeachers()
@@ -170,6 +191,7 @@ export default function TeachersPage() {
     }
 
     return (
+        <>
         <div>
 
             {/* Header */}
@@ -251,5 +273,146 @@ export default function TeachersPage() {
             </AddUserDrawer>
 
         </div>
+
+        {/* View Teacher Sheet */}
+<Sheet open={!!viewingTeacher} 
+onOpenChange={(open) => !open && setViewingTeacher(null)}>
+    <SheetContent className="w-full sm:max-w-md
+    overflow-y-auto bg-background border-border px-6">
+        <SheetHeader className="mb-8 pt-2">
+            <SheetTitle className='text-xl'>Teacher Details</SheetTitle>
+        </SheetHeader>
+
+        {viewingTeacher && (
+            <div className="space-y-8">
+
+                {/* Basic Info */}
+                <div>
+                    <h3 className="text-sm font-semibold
+                    text-muted-foreground uppercase
+                    tracking-widest mb-3">
+                        Basic Info
+                    </h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3
+                        p-4 bg-accent rounded-xl">
+                            <User className="h-4 w-4
+                            text-[#0E9EAD] shrink-0" />
+                            <div>
+                                <p className="text-xs
+                                text-muted-foreground mb-0.5">
+                                    Name
+                                </p>
+                                <p className="text-sm font-medium
+                                text-foreground">
+                                    {viewingTeacher.userId?.name}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3
+                        p-4 bg-accent rounded-xl">
+                            <Phone className="h-4 w-4
+                            text-[#0E9EAD] shrink-0" />
+                            <div>
+                                <p className="text-xs
+                                text-muted-foreground mb-0.5">
+                                    Phone
+                                </p>
+                                <p className="text-sm font-semibold
+                                text-foreground">
+                                    {viewingTeacher.userId?.phone || 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Credentials */}
+                <div>
+                    <h3 className="text-sm font-semibold
+                    text-muted-foreground uppercase
+                    tracking-widest mb-3">
+                        Login Credentials
+                    </h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3
+                        p-4 bg-accent rounded-xl">
+                            <Mail className="h-4 w-4
+                            text-[#0E9EAD] shrink-0" />
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs
+                                text-muted-foreground mb-0.5">Email</p>
+                                <p className="text-sm font-semibold
+                                text-foreground truncate">
+                                    {viewingTeacher.userId?.email}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3
+                        p-4 bg-accent rounded-xl">
+                            <Mail className="h-4 w-4
+                            text-[#0E9EAD] shrink-0" />
+                            <div>
+                                <p className="text-xs
+                                text-muted-foreground mb-0.5">Password</p>
+                                <p className="text-sm font-semibold
+                                text-foreground">
+                                    {viewingTeacher.userId?.email
+                                        ?.replace('@edunest.com', '@edunest')}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => copyCredentials(
+                                viewingTeacher.userId?.email
+                            )}
+                            className="flex items-center gap-2
+                            w-full px-4 py-3 bg-[#0E9EAD]
+                            text-white rounded-xl text-sm font-medium
+                            hover:bg-[#0C8A98] transition-colors
+                            justify-center mt-1"
+                        >
+                            {copied
+                                ? <Check className="h-4 w-4" />
+                                : <Copy className="h-4 w-4" />
+                            }
+                            {copied ? 'Copied!' : 'Copy Credentials'}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Assignments */}
+                <div>
+                    <h3 className="text-sm font-semibold
+                    text-muted-foreground uppercase
+                    tracking-wide mb-3">
+                        Assignments
+                    </h3>
+                    <div className="space-y-2">
+                        {viewingTeacher.assignments?.map((a, i) => (
+                            <div key={i}
+                                className="flex items-center
+                                justify-between p-4 bg-accent
+                                rounded-xl">
+                                <span className="text-sm
+                                font-semibold text-foreground">
+                                    {a.subjectName}
+                                </span>
+                                <span className="text-xs px-3 py-1
+                                bg-[#0E9EAD]/10 text-[#0E9EAD]
+                                rounded-full font-medium">
+                                    Class {a.class} — {a.section}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+            </div>
+        )}
+    </SheetContent>
+</Sheet>
+
+        </>
     )
 }
