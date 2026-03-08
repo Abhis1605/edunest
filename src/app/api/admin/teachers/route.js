@@ -16,7 +16,6 @@ export async function GET() {
 
         const teachers = await Teacher.find({ isActive: true })
          .populate('userId', 'name email phone gender')
-         .populate('subjects', 'name')
          .sort({ createdAt: -1 })
 
          return Response.json({ teachers })

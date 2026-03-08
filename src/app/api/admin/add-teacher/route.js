@@ -1,7 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import Teacher from "@/models/Teacher";
-import Subject from "@/models/Subject";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { generateCredentials } from "@/lib/generateCredentials";
@@ -30,7 +29,7 @@ export async function POST(request) {
         const admin = await User.findById(session.user.id)
         // console.log('Admin found:', admin)
         // console.log('ShortForm', admin?.schoolShortform)
-        const shortform = (admin.schoolShortForm || 'school')
+        const shortform = (admin.schoolShortForm || 'school').toLowerCase()
         // console.log('final shortform', shortform)
 
         const teacherCount = await User.countDocuments({
@@ -62,12 +61,11 @@ export async function POST(request) {
             role: 'teacher',
             phone,
             gender,
-            isActice: true,
+            isActive: true,
             isProfileComplete: false
         })
 
-        //create Teacher
-        const newTeacher = await Teacher.create({
+        await Teacher.create({
             userId: newUser._id,
             assignments: assignments,
             isActive: true
@@ -75,7 +73,7 @@ export async function POST(request) {
 
         return Response.json({
             message: 'Teacher added successfully',
-            Credentials: { email, password }
+            credentials: { email, password }
         })
 
     } catch (error) {

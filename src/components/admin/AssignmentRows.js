@@ -38,7 +38,7 @@ export default function AssignmentRows({
                 <label className="block text-sm font-medium">
                     Assignments *
                 </label>
-                <button type="button" onClick={addRow} className="flex items-center gap-1 text-xs text-[#0E9EAD] hover:text-[#OC8A98] transition-colors font-medium">
+                <button type="button" onClick={addRow} className="flex items-center gap-1 text-xs text-[#0E9EAD] hover:text-[#0C8A98] transition-colors font-medium">
                     <Plus className="h-3 w-3" />
                     Add Assignment
                 </button>
@@ -54,18 +54,13 @@ export default function AssignmentRows({
                                 <Trash2 className="h-4 w-4" />
                             </button>
                         )}
-                    </div>
-                ))}
-
-                {/* Subject */}
-
+                        {/* Subject */}
                 <FormInput label="Subject" name="subjectName" value={assignment.subjectName} onChange={(e) => handleChange(
                     index, 'subjectName', e.target.value
                 )}  
                     placeholder='e.g. Maths'
                     required
                 />
-
                 {/* Class and Section in a row */}
                 <div className="grid grid-cols-2 gap-2">
                     <FormSelect label="Class" name="class" value={assignment.class} onChange={(e) => handleChange(
@@ -83,6 +78,8 @@ export default function AssignmentRows({
                     options={sectionOptions}
                  />
                 </div>
+                    </div>
+                ))}
             </div>
         </div>
     )
