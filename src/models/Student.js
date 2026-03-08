@@ -1,4 +1,3 @@
-import { TruckElectric } from "lucide-react";
 import mongoose, { Schema } from "mongoose";
 
 const StudentSchema = new Schema({
@@ -19,7 +18,7 @@ const StudentSchema = new Schema({
   section: {
     type: String,
     required: true,
-    trim: TruckElectric,
+    trim: true,
   },
   gender: {
     type: String,
