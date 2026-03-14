@@ -100,6 +100,9 @@ export async function POST(request) {
             isActive: true,
         }], { session: dbSession });
 
+        console.log("parent created", newParentUser._id)
+        console.log('Student created:', newStudentUser._id)
+
         await dbSession.commitTransaction();
 
         return Response.json({

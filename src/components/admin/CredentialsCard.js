@@ -7,8 +7,13 @@ export default function CredentialsCard({
 }) {
     const [copied, setCopied] = useState(false)
 
+    const isStdent = credentials?.student && credentials?.parent
+
     const copyCredentials = () => {
-        const text = `Email: ${credentials.email}\nPassword: ${credentials.password}`
+         let text = ''
+         if (isStdent) {
+            text = `Student Email: ${credentials.student.email}\nStudent Password: ${credentials.student.password}\n\nParent Email: ${credentials.parent.email}\nParent Password:${credentials.parent.password}`
+         }
         navigator.clipboard.writeText(text)
         setCopied(true)
         setTimeout(() => {
@@ -23,7 +28,45 @@ export default function CredentialsCard({
                 Share these login credentials with the teacher:
             </p>
 
-            {/* Email */}
+            {isStdent ? (
+                <>
+                {/* Student Credentials */}
+                    <p className="text-xs font-semibold text-[#0E9EAD] uppercase tracking-wide">
+                        Student Login
+                    </p>
+                    <div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
+                        <Mail className="h-4 w-4 text-[#0E9EAD] shrink-0" />
+                        <span className="text-sm font-medium text-foreground break-all">
+                            {credentials.student.email}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
+                        <Lock className="h-4 w-4 text-[#0E9EAD] shrink-0" />
+                        <span className="text-sm font-medium text-foreground">
+                            {credentials.student.password}
+                        </span>
+                    </div>
+
+                    {/* Parent Credentials */}
+                    <p className="text-xs font-semibold text-[#0E9EAD] uppercase tracking-wide pt-2">
+                        Parent Login
+                    </p>
+                    <div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
+                        <Mail className="h-4 w-4 text-[#0E9EAD] shrink-0" />
+                        <span className="text-sm font-medium text-foreground break-all">
+                            {credentials.parent.email}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
+                        <Lock className="h-4 w-4 text-[#0E9EAD] shrink-0" />
+                        <span className="text-sm font-medium text-foreground">
+                            {credentials.parent.password}
+                        </span>
+                    </div>
+                </>
+            ): (
+                <>
+                  {/* Email */}
             <div className="flex items-center gap-2 bg-background p-3 rounded-lg border border-border">
                 <Mail className="h-4 w-4 text-[#0E9EAD] shrink-0 "/>
                 <span className="text-sm font-medium text-foreground break-all">
@@ -38,6 +81,10 @@ export default function CredentialsCard({
                     {credentials.password}
                 </span>
             </div>
+                </>
+            )}
+
+          
 
             {/* Button */}
             <div className="flex gap-2 pt-2">
@@ -46,10 +93,10 @@ export default function CredentialsCard({
                     { copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} 
                     {copied ? "Copied" : "Copy" }
                 </button>
-                <button onChange={onAddAnother} className="px-3 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-accent/80 transition-colors">
+                <button onClick={onAddAnother} className="px-3 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-accent/80 transition-colors">
                     Add Another
                 </button>
-                <button onClose={onclose} className="px-3 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-accent/80 transition-colors">
+                <button onClick={onClose} className="px-3 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-accent/80 transition-colors">
                     Close
                 </button>
 
