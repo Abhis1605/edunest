@@ -15,7 +15,7 @@ const avatars = [
 
 export default function SetupProfilePage() {
     const router = useRouter()
-    const { data: session } = useSession()
+    const { data: session, update } = useSession()
     const [selectedAvatar, setSelectedAvatar] = useState('avatar1')
     const [loading, setLoading] = useState(false)
 
@@ -29,6 +29,11 @@ export default function SetupProfilePage() {
             })
 
             if (res.ok) {
+
+              await update({
+                avatar: selectedAvatar,
+                isProfileComplete: true
+              })
                 const role = session?.user?.role
                 if (role === 'admin') router.push('/dashboard/admin')
                 else if (role === 'teacher') router.push('/dashboard/teacher')

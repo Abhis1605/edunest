@@ -26,13 +26,18 @@ export async function DELETE(request) {
             }, { status: 404 })
         }
 
+        // Deactive user
+        await User.findByIdAndUpdate(teacher.userId, {
+            isActive: false
+        })
+
         // Deactivate teacher
         await Teacher.findByIdAndUpdate(id, {
             isActive: false
         })
 
         return Response.json({
-            message: "Techer deleted successfully"
+            message: "Teacher deleted successfully"
         })
 
     } catch (error) {
