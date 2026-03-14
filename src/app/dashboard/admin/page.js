@@ -1,30 +1,48 @@
 'use client'
-import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
-import { Users, GraduationCap, UserCog2Icon, Plus, } from "lucide-react"
 import { api } from "@/lib/api"
-import Link from "next/link"
-import StatCard from "@/components/shared/StatCard"
 
+import QuickActions from "../QuickActions"
+import RecentStudents from "../RecentStudents"
+import RecentTeachers from "../RecentTeachers"
+import StatesSection from "../StatesSection"
 
 export default function AdminDashboard() {
-
-    const { data: session } = useSession()
     const [stats, setStats] = useState({
-        totalTeachers : 0,
-        totalStudents : 0,
-        totalParents : 0,
-    }) 
+        totalTeachers: 0,
+        totalStudents: 0,
+        totalParents: 0,
+        studentsByClass: [],
+        genderData: [],
+    })
+    const [recentTeachers, setRecentTeachers] = useState([])
+    const [recentStudents, setRecentStudents] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetchStats()
+        fetchDashboardData()
     }, [])
 
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
         try {
-            const data = api.get('/api/admin/stats')
-            setStats(data)
+            const [statsData, teachersData, studentsData] = await Promise.all([
+                api.get('/api/admin/stats'),
+                api.get('/api/admin/teachers'),
+                api.get('/api/admin/students?sort=newest'),
+            ])
+            setStats({
+                totalTeachers: statsData.totalTeachers || 0,
+                totalStudents: statsData.totalStudents || 0,
+                totalParents: statsData.totalParents || 0,
+                studentsByClass: statsData.studentsByClass || [],
+                genderData: statsData.genderData || [],
+            })
+            setRecentTeachers(
+                (teachersData.teachers || []).slice(0, 5)
+            )
+            setRecentStudents(
+                (studentsData.students || []).slice(0, 5)
+            )
         } catch (error) {
             console.error(error)
         } finally {
@@ -32,78 +50,35 @@ export default function AdminDashboard() {
         }
     }
 
-    const stateCards = [
-        {
-            title: "Total Teachers",
-            value: loading ? '...' : stats.totalTeachers,
-            Subtitle: "Active teachers",
-            icon: <UserCog2Icon className="h-5 w-5" />,
-            bgColor: 'bg-[#0E9EAD]/10',
-            iconColor: 'text-[#0E9EAD]'
-        },
-        {
-            title: "Total Students",
-            value: loading ? '...' : stats.totalStudents,
-            Subtitle: "Active students",
-            icon: <GraduationCap className="h-5 w-5" />,
-            bgColor: 'bg-[#2EAF4D]/10',
-            iconColor: 'text-[#2EAF4D]',
-        },
-        {
-            title: "Total Parents",
-            value: loading ? '...' : stats.totalParents,
-            Subtitle: "Active parents",
-            icon: <Users className="h-5 w-5" />,
-            bgColor: 'bg-orange-100',
-            iconColor: 'text-orange-500',
-        }
-    ]
-
     return (
-        <div>
+        <div className="space-y-6">
+
             {/* Header */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">
+            <div>
+                <h1 className="text-2xl font-bold text-foreground">
                     Dashboard
                 </h1>
-                <p>
+                <p className="text-muted-foreground mt-1">
                     Overview of your school
                 </p>
             </div>
 
-            {/* Card part */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    {
-                        stateCards.map((card, index) => (
-                            <StatCard 
-                                key={index}
-                                title={card.title}
-                                value={card.value}
-                                subtitle={card.Subtitle}
-                                icon={card.icon}
-                                bgColor={card.bgColor}
-                                iconColor={card.iconColor}
-                            />
-                        ))
-                    }
-            </div>
+            {/* Stats */}
+            <StatesSection stats={stats} loading={loading} />
 
             {/* Quick Actions */}
-            <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                        Quick Actions
-                    </h2>
-                    <div className="flex gap-3 flex-wrap">
-                        <Link className="px-4 py-2 bg-[#0E9EAD] text-white rounded-lg text-sm font-medium hover:bg-[#0C8A98] transition-colors" href="/dashboard/admin/teachers">
-                            + Add Teacher
-                        </Link>
-                        <Link className="px-4 py-2 bg-[#2EAF4D] text-white rounded-lg text-sm font-medium hover:bg-[#278F40] transition-colors" href="/dashboard/admin/students">
-                            + Add Student
-                        </Link>
-                        <Link className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors" href="/dashboard/admin/parents">
-                            + Add Parent
-                        </Link>
-                    </div>
+            <QuickActions />
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RecentTeachers
+                    teachers={recentTeachers}
+                    loading={loading}
+                />
+                <RecentStudents
+                    students={recentStudents}
+                    loading={loading}
+                />
             </div>
 
         </div>
