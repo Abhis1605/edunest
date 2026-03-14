@@ -64,7 +64,8 @@ export async function POST(request) {
             isActive: true,
             isProfileComplete: false
         })
-
+        console.log("generated password", password)
+        console.log("email", email)
         await Teacher.create({
             userId: newUser._id,
             assignments: assignments,
@@ -73,7 +74,7 @@ export async function POST(request) {
 
         return Response.json({
             message: 'Teacher added successfully',
-            credentials: { email, password }
+            credentials: { email, password },
         })
 
     } catch (error) {
