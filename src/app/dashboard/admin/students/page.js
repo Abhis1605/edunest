@@ -34,6 +34,10 @@ export default function StudentsPage() {
     const [formData, setFormData] = useState(initialForm)
     const [copied, setCopied] = useState(false)
 
+    const [filterClass, setFilterClass] = useState('')
+    const [filterSection, setFilterSection] = useState("")
+    const [sortOrder, setSortOrder] = useState('newest')
+
 
     const columns = [
         {
@@ -95,13 +99,15 @@ export default function StudentsPage() {
         }
     ]
 
-    useEffect(() => {
-        fetchStudents()
-    }, [])
 
-    const fetchStudents = async () => {
+    const fetchStudents = async ( cls ='', section= "" , sort= "newest") => {
+        setLoading(true)
         try {
-            const data = await api.get('/api/admin/students')
+            const params = new URLSearchParams()
+            if (cls) params.append('class', cls)
+            if (section) params.append("section", section)
+                params.append('sort', sort)
+            const data = await api.get(`/api/admin/students?${params.toString()}`)
             setStudents(data.students || [])
         } catch (error) {
             toast.error('Failed to load students')
@@ -109,6 +115,10 @@ export default function StudentsPage() {
             setLoading(false)
         }
     }
+
+     useEffect(() => {
+        fetchStudents(filterClass, filterSection, sortOrder)
+    }, [filterClass, filterSection, sortOrder])
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -221,6 +231,65 @@ export default function StudentsPage() {
                   <Plus className="h-4 w-4" />
                     Add Student
                 </button>
+                </div>
+
+                {/* Filters */}
+                <div className="flex itemce] gap-3 mb-4 flex-wrap">
+                    <select value={filterClass} 
+                        onChange={(e) => setFilterClass(e.target.value)}
+                        className="text-sm px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[#0E9EAD]"
+                    >
+                        <option value="">
+                            All Classes
+                        </option>
+                            {[8,9,10].map(c => (
+                                <option key={c} value={String(c)}>
+                                    Class {c}
+                                </option>
+                            ))}
+                    </select>
+
+                    <select value={filterSection} 
+                        onChange={(e) => setFilterSection(e.target.value)}
+                        className="text-sm px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[#0E9EAD]"
+                    >
+                        <option value="">
+                            All Sections
+                        </option>
+                        {['A', 'B'].map(s => (
+                            <option key={s} value={s}>
+                                Section {s}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select 
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="text-sm px-3 py-2 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[#0E9EAD]"
+                    >
+                        <option value="newest">
+                            Newest First 
+                        </option>
+                        <option value='oldest'>
+                            Oldest First
+                        </option>
+                    </select>
+
+                    {(filterClass || filterSection) && (
+                        <button onClick={() => {
+                            setFilterClass('')
+                            setFilterSection('')
+                        }} 
+                            className="text-sm px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 hover:bg-red-200 transition-colors"
+                        >
+                            Clear Filters
+                        </button>
+                    )}
+
+                    <span className="text-sm text-muted-foreground ml-auto">
+                        {students.length} Students
+                    </span>
                 </div>
 
                 {/* Students Table */}

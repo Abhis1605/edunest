@@ -3,7 +3,7 @@ import Student from '@/models/Student';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
-export async function GET() {
+export async function GET(request) {
     try {
         await connectDB();
 
@@ -13,11 +13,23 @@ export async function GET() {
                 message: 'Unauthorized' 
             }, { status: 401 });
         }
+    
+        const { searchParams } = new URL(request.url)
+        const filterClass = searchParams.get('class') || ''
+        const filterSection = searchParams.get('section') || ''
+        const sortOrder = searchParams.get('sort') || 'newest'
 
-        const students = await Student.find({ isActive: true })
+        const filter = { isActive: true }
+        if (filterClass) filter.class = filterClass
+        if (filterSection) filter.section = filterSection
+
+        const sort = sortOrder === "oldest"
+        ? { createdAt: 1 } : { createdAt: -1 }
+
+         const students = await Student.find(filter)
             .populate('userId', 'name email phone gender')
             .populate('parentId', 'name email phone')
-            .sort({ createdAt: -1 });
+            .sort(sort);
 
         return Response.json({ students });
 
