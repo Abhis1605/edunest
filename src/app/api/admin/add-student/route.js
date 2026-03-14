@@ -5,58 +5,54 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { generateCredentials } from '@/lib/generateCredentials';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 export async function POST(request) {
+    await connectDB();
+
+    const authSession = await getServerSession(authOptions);
+    if (!authSession || authSession.user.role !== 'admin') {
+        return Response.json({ 
+            message: 'Unauthorized' 
+        }, { status: 401 });
+    }
+
+    const dbSession = await mongoose.startSession();
+    dbSession.startTransaction();
+
     try {
-        await connectDB();
-
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== 'admin') {
-            return Response.json({ 
-                message: 'Unauthorized' 
-            }, { status: 401 });
-        }
-
         const body = await request.json();
         const { name, phone, gender, class: cls, 
                 section, parentName, parentPhone } = body;
 
-        // Validate
         if (!name || !gender || !cls || !section || !parentName) {
+            await dbSession.abortTransaction();
             return Response.json({ 
                 message: 'Please fill all required fields' 
             }, { status: 400 });
         }
 
         // Get admin shortform
-        const admin = await User.findById(session.user.id);
+        const admin = await User.findById(authSession.user.id);
         const shortform = (admin?.schoolShortForm || 'school').toLowerCase();
 
-        // Count existing students for credential number
-        const studentCount = await User.countDocuments({ 
-            role: 'student' 
-        });
-        const studentNum = studentCount + 1;
+        // Count for credentials
+        const studentCount = await User.countDocuments({ role: 'student' });
+        const parentCount = await User.countDocuments({ role: 'parent' });
 
-        // Count existing parents for credential number
-        const parentCount = await User.countDocuments({ 
-            role: 'parent' 
-        });
-        const parentNum = parentCount + 1;
-
-        // Generate credentials
         const studentCreds = generateCredentials(
-            shortform, 'student', studentNum
+            shortform, 'student', studentCount + 1
         );
         const parentCreds = generateCredentials(
-            shortform, 'parent', parentNum
+            shortform, 'parent', parentCount + 1
         );
 
-        // Check if emails already exist
+        // Check duplicate
         const existingStudent = await User.findOne({ 
             email: studentCreds.email 
         });
         if (existingStudent) {
+            await dbSession.abortTransaction();
             return Response.json({ 
                 message: 'Student already exists' 
             }, { status: 400 });
@@ -71,7 +67,7 @@ export async function POST(request) {
         );
 
         // Create Parent User
-        const newParentUser = await User.create({
+        const [newParentUser] = await User.create([{
             name: parentName,
             email: parentCreds.email,
             password: parentHashedPassword,
@@ -79,10 +75,10 @@ export async function POST(request) {
             phone: parentPhone,
             isActive: true,
             isProfileComplete: false,
-        });
+        }], { session: dbSession });
 
         // Create Student User
-        const newStudentUser = await User.create({
+        const [newStudentUser] = await User.create([{
             name,
             email: studentCreds.email,
             password: studentHashedPassword,
@@ -91,24 +87,20 @@ export async function POST(request) {
             gender,
             isActive: true,
             isProfileComplete: false,
-        });
-
-        // Generate roll number
-        const rollNo = await Student.generateRollNo(
-            cls, section, gender
-        );
+        }], { session: dbSession });
 
         // Create Student
-        await Student.create({
+        await Student.create([{
             userId: newStudentUser._id,
             parentId: newParentUser._id,
             class: cls,
             section,
             gender,
-            rollNo,
             admissionYear: new Date().getFullYear().toString(),
             isActive: true,
-        });
+        }], { session: dbSession });
+
+        await dbSession.commitTransaction();
 
         return Response.json({
             message: 'Student added successfully',
@@ -125,9 +117,13 @@ export async function POST(request) {
         });
 
     } catch (error) {
+        await dbSession.abortTransaction();
+        console.log('Add student error:', error.message);
         return Response.json({ 
             message: 'Failed', 
             error: error.message 
         }, { status: 500 });
+    } finally {
+        dbSession.endSession();
     }
 }

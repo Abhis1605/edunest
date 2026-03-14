@@ -89,7 +89,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mb-6">
+            <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-gray-800 mb-3">
                         Quick Actions
                     </h2>
