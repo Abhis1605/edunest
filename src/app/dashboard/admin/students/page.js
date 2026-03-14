@@ -10,6 +10,7 @@ import { api } from "@/lib/api"
 import { Mail, Phone, Plus, User, Users, Check, Copy } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import CredentialsCard from '@/components/admin/CredentialsCard'
 
 
 
@@ -38,6 +39,13 @@ export default function StudentsPage() {
     const [filterSection, setFilterSection] = useState("")
     const [sortOrder, setSortOrder] = useState('newest')
 
+    const [addingParentFor, setAddingParentFor] = useState(null)
+        const [parentForm, setParentForm] = useState({
+            parentName: '', parentPhone: ''
+        })
+        const [addingParent, setAddingParent] = useState(false)
+        const [parentCredentials, setParentCredentials] = useState(null)
+
 
     const columns = [
         {
@@ -62,7 +70,20 @@ export default function StudentsPage() {
         {
             key: 'parent',
             label: 'Parent',
-            render: (row) => row.parentId?.name || 'N/A'
+            render: (row) => row.parentId?.name ? (
+                row.parentId.name
+            ) : (
+                <button 
+                    onClick={() => {
+                        setAddingParentFor(row)
+                        setParentForm({ parentName: "", parentPhone: '' })
+                        setParentCredentials(null)
+                    }}
+                    className="text-xs px-2 py-1 rounded bg-[#2EAF4D]/10 text-[#2EAF4D] hover:bg-[#2EAF4D]/20 transition-colors"
+                >
+                    + Add Parent
+                </button>
+            )
         },
         {
             key: 'status',
@@ -197,6 +218,28 @@ export default function StudentsPage() {
             toast.error(editingStudent ? 'Failed to update student' : 'Failed to add student')
         } finally {
             setSubmitting(false)
+        }
+    }
+
+    const handleAddParent= async () => {
+        if (!parentForm.parentName) {
+            toast.error('Parent name is required')
+            return
+        }
+        setAddingParent(true)
+        try {
+            const data = await api.post('/api/admin/add-parent', {
+                studentId: addingParentFor._id,
+                parentName: parentForm.parentName,
+                parentPhone: parentForm.parentPhone
+            })
+            setParentCredentials(data.credentials)
+            toast.success('Parent added successfully!')
+            fetchStudents(filterClass, filterSection, sortOrder)
+        } catch (error) {
+            toast.error('Failed to add parent')
+        } finally {
+            setAddingParent(false)
         }
     }
 
@@ -505,6 +548,83 @@ export default function StudentsPage() {
                     )}
                 </SheetContent>
             </Sheet>
+
+           {/* Add Parent Sheet */}
+<Sheet open={!!addingParentFor}
+onOpenChange={(open) => {
+    if (!open) {
+        setAddingParentFor(null)
+        setParentCredentials(null)
+        setParentForm({ parentName: '', parentPhone: '' })
+    }
+}}>
+    <SheetContent className="w-full sm:max-w-md
+    overflow-y-auto bg-background border-border px-6">
+        <SheetHeader className="mb-8 pt-2">
+            <SheetTitle className="text-xl">
+                Add Parent
+            </SheetTitle>
+            <p className="text-sm text-muted-foreground">
+                Adding parent for {addingParentFor?.userId?.name}
+            </p>
+        </SheetHeader>
+
+        {parentCredentials ? (
+            <CredentialsCard
+                credentials={parentCredentials}
+                onAddAnother={null}
+                onClose={() => {
+                    setAddingParentFor(null)
+                    setParentCredentials(null)
+                }}
+            />
+        ) : (
+            <div className="space-y-4">
+                <FormInput
+                    label="Parent Name"
+                    name="parentName"
+                    value={parentForm.parentName}
+                    onChange={(e) => setParentForm({
+                        ...parentForm,
+                        parentName: e.target.value
+                    })}
+                    placeholder="Enter parent name"
+                    required
+                />
+                <FormInput
+                    label="Parent Phone"
+                    name="parentPhone"
+                    value={parentForm.parentPhone}
+                    onChange={(e) => setParentForm({
+                        ...parentForm,
+                        parentPhone: e.target.value
+                    })}
+                    placeholder="Enter parent phone"
+                />
+                <div className="flex gap-2 pt-4">
+                    <button
+                        onClick={handleAddParent}
+                        disabled={addingParent}
+                        className="flex-1 py-2 bg-[#0E9EAD]
+                        text-white rounded-lg text-sm font-medium
+                        hover:bg-[#0C8A98] transition-colors
+                        disabled:opacity-50"
+                    >
+                        {addingParent ? 'Adding...' : 'Add Parent'}
+                    </button>
+                    <button
+                        onClick={() => setAddingParentFor(null)}
+                        className="flex-1 py-2 bg-accent
+                        text-foreground rounded-lg text-sm
+                        hover:bg-accent/80 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        )}
+    </SheetContent>
+</Sheet>
         </>
     )
 }
