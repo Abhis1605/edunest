@@ -6,6 +6,7 @@ import QuickActions from "../QuickActions"
 import RecentStudents from "../RecentStudents"
 import RecentTeachers from "../RecentTeachers"
 import StatesSection from "../StatesSection"
+import ChartsSection from "../ChartsSection"
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
@@ -68,6 +69,8 @@ export default function AdminDashboard() {
 
             {/* Quick Actions */}
             <QuickActions />
+
+            <ChartsSection stats={stats} loading={loading} />
 
             {/* Recent Activity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
