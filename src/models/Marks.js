@@ -6,15 +6,15 @@ const MarksSchema = new Schema({
         ref: 'Student',
         required: true,
     },
-    subjectId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Subject',
-        required: true,
-    },
     teacherId: {
         type: Schema.Types.ObjectId,
         ref: "Teacher",
         required: true,
+    },
+    subjectName: {
+        type: String,
+        required: true,
+    trim: true,
     },
     examType: {
         type: String,
@@ -41,5 +41,11 @@ const MarksSchema = new Schema({
         trim: true,
     }
 }, { timestamps: true })
+
+// prvent duplicate marks for same student same subject same exam
+MarksSchema.index(
+    { studentId: 1, subjectName: 1, examType: 1, class: 1, section: 1},
+    { unique: true }
+)
 
 export default mongoose.models.Marks || mongoose.model('Marks', MarksSchema)
