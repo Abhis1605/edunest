@@ -69,6 +69,11 @@ export default function RemarksPage() {
                 })
             })
             const data = await response.json()
+            console.log('AI response', data) 
+
+            if (!data.remark) {
+                toast.error('No remark generated')
+            }
             setStudents(students.map(s =>
                 s._id === student._id
                     ? { ...s, remark: data.remark, isAiGenerated: true }
