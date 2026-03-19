@@ -79,7 +79,7 @@ export default function Topbar() {
 
   return (
     <>
-        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10 dark:border-gray-700 dark:bg-background">
+        <div className=" print:hidden h-16 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10 dark:border-gray-700 dark:bg-background">
       <div>
         <p className="text-xs text-gray-400 dark:text-gray-500">Welcome back</p>
         <h2 className="text-base font-semibold text-gray-800 dark:text-white">

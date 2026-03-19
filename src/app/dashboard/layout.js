@@ -9,7 +9,7 @@ export default function Layout({ children }) {
     return (
         <div className="flex">
             <Sidebar onToggle={(newState) => setIsOpen(newState)} />
-            <div className={`flex-1 p-6 transition-all duration-300 ${ isOpen ? 'ml-64' : 'ml-25' }`}>
+            <div className={`flex-1 p-6 transition-all print:p-0 print:m-0 duration-300 ${ isOpen ? 'ml-64' : 'ml-25' }`}>
                 <Topbar />
                 {children}
             </div>
