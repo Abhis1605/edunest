@@ -33,7 +33,7 @@ const navLinks = {
         { label: "Marks", href: "/dashboard/teacher/marks", icon: BookOpen },
         { label: "Homework", href: "/dashboard/teacher/homework", icon: FileText },
         { label: "Remarks", href: "/dashboard/teacher/remarks", icon: MessageSquare },
-        { label: "Attendance Excel", href: "/dashboard/teacher/download-excel", icon: Download },
+        { label: "Attendance Excel", href: "/dashboard/teacher/attendance-excel", icon: Download },
         { label: "Student Reports", href: "/dashboard/teacher/reports", icon: FileText },
     ], 
     student: [
