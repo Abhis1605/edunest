@@ -11,6 +11,11 @@ const RemarksSchema = new Schema({
     ref: 'Teacher',
     required: true,
   },
+  subjectName: {
+    type: String,
+    required: true,
+    trim: true
+  },
   content: {
     type: String,
     required: true,

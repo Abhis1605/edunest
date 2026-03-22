@@ -41,6 +41,10 @@ const UserSchema = new Schema({
         trim: true,
         lowercase: true,
     },
+    isProfileComplete: {
+        type: Boolean,
+        default: false,
+    },
     isActive: {
         type: Boolean,
         default: true

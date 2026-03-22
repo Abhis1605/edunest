@@ -6,11 +6,6 @@ const AttendanceSchema = new Schema({
         ref: "Student",
         required: true,
     },
-    subjectId: {
-        type: Schema.Types.ObjectId,
-        ref: "Subject",
-        required: true
-    }, 
     teacherId: {
         type: Schema.Types.ObjectId,
         ref: "Teacher",
@@ -18,7 +13,7 @@ const AttendanceSchema = new Schema({
     },
     date :{
         type: Date,
-        required: 'true'
+        required: true
     },
     status: {
         type: String,
@@ -29,7 +24,18 @@ const AttendanceSchema = new Schema({
         type: String,
         required: true,
         trim: true,
+    }, 
+    section: {
+        type: String,
+        required: true,
+        trim: true,
     }
 }, { timestamps: true })
+
+// This prevent duplicate attendence for same student on same day
+AttendanceSchema.index(
+    { studentId: 1, date: 1 },
+    { unique: true }
+)
 
 export default mongoose.models.Attendance || mongoose.model('Attendance', AttendanceSchema)
