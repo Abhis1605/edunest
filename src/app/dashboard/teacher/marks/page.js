@@ -279,7 +279,7 @@ export default function MarksPage() {
                 rounded-xl overflow-hidden">
 
                     {/* Header */}
-                    <div className="flex items-center justify-between
+                    <div className="flex gap-3 lg:gap-0 flex-col md:flex-row lg:flex-row lg:items-center justify-between
                     px-5 py-4 border-b border-border">
                         <div>
                             <h2 className="font-semibold text-foreground">
@@ -290,15 +290,15 @@ export default function MarksPage() {
                             </p>
                         </div>
                         {alreadyEntered && (
-                            <span className="text-xs px-3 py-1
+                            <span className=" flex text-xs items-center w-fit px-3 py-1
                             bg-blue-100 dark:bg-blue-900/30
                             text-blue-600 rounded-full">
-                                Editing existing marks
+                                Already entered
                             </span>
                         )}
                         {students.length > 0 && (
-                            <div className="text-right">
-                                <p className="text-xs text-muted-foreground">
+                            <div className="flex items-center lg:inline gap-2 lg:text-right">
+                                <p className="text-sm lg:text-xs text-foreground">
                                     Class Average
                                 </p>
                                 <p className="text-lg font-bold text-[#0E9EAD]">

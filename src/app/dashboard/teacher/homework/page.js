@@ -116,7 +116,7 @@ export default function HomeworkPage() {
         <div className="space-y-6">
 
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex gap-3 lg:gap-0 flex-col md:flex-row lg:flex-row lg:items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">
                         Homework
@@ -127,7 +127,7 @@ export default function HomeworkPage() {
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="flex items-center gap-2 px-4 py-2
+                    className="flex w-fit items-center gap-2 px-4 py-2
                     bg-[#0E9EAD] text-white rounded-lg text-sm
                     font-medium hover:bg-[#0C8A98] transition-colors"
                 >

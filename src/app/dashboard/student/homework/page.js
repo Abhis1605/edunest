@@ -60,7 +60,7 @@ export default function StudentHomeworkPage() {
         <div className="space-y-6">
 
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex gap-3 md:gap-0 lg:gap-0 flex-col md:flex-row lg:flex-row  lg:items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">
                         Homework
@@ -70,11 +70,11 @@ export default function StudentHomeworkPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs px-3 py-1
+                    <span className="text-sm lg:text-xs px-4 py-2 lg:px-3 lg:py-1
                     bg-[#0E9EAD]/10 text-[#0E9EAD] rounded-full">
                         {active.length} Active
                     </span>
-                    <span className="text-xs px-3 py-1
+                    <span className=" text-sm lg:text-xs px-4 py-2 lg:px-3 lg:py-1
                     bg-gray-100 dark:bg-gray-800
                     text-gray-500 rounded-full">
                         {past.length} Completed
