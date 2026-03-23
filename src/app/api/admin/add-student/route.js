@@ -36,27 +36,26 @@ export async function POST(request) {
         const admin = await User.findById(authSession.user.id);
         const shortform = (admin?.schoolShortForm || 'school').toLowerCase();
 
-        // Count for credentials
-        const studentCount = await User.countDocuments({ role: 'student' });
-        const parentCount = await User.countDocuments({ role: 'parent' });
+       // Find next available student email
+let studentNum = 1;
+while (true) {
+    const creds = generateCredentials(shortform, 'student', studentNum);
+    const exists = await User.findOne({ email: creds.email });
+    if (!exists) break;
+    studentNum++;
+}
+const studentCreds = generateCredentials(shortform, 'student', studentNum);
 
-        const studentCreds = generateCredentials(
-            shortform, 'student', studentCount + 1
-        );
-        const parentCreds = generateCredentials(
-            shortform, 'parent', parentCount + 1
-        );
+// Find next available parent email
+let parentNum = 1;
+while (true) {
+    const creds = generateCredentials(shortform, 'parent', parentNum);
+    const exists = await User.findOne({ email: creds.email });
+    if (!exists) break;
+    parentNum++;
+}
+const parentCreds = generateCredentials(shortform, 'parent', parentNum);
 
-        // Check duplicate
-        const existingStudent = await User.findOne({ 
-            email: studentCreds.email 
-        });
-        if (existingStudent) {
-            await dbSession.abortTransaction();
-            return Response.json({ 
-                message: 'Student already exists' 
-            }, { status: 400 });
-        }
 
         // Hash passwords
         const studentHashedPassword = await bcrypt.hash(

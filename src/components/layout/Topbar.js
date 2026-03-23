@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { Bell, Sun, Moon } from "lucide-react";
+import { Bell, Sun, Moon, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
@@ -22,7 +22,7 @@ const avatarList = [
   { id: "avatar6", src: "/Images/avatars/avatar-6.png" },
 ];
 
-export default function Topbar() {
+export default function Topbar({ onMobileMenuClick }) {
   const { data: session, update } = useSession();
   const [isDark, setIsDark] = useState(true);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -79,12 +79,18 @@ export default function Topbar() {
 
   return (
     <>
-        <div className=" print:hidden h-16 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10 dark:border-gray-700 dark:bg-background">
-      <div>
+        <div className=" print:hidden h-22 bg-white border-b border-gray-200 flex items-center justify-between  sticky top-0 z-10 dark:border-gray-700 dark:bg-background px-4">
+      <div className="flex items-center gap-3">
+        <button onClick={onMobileMenuClick} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 lg:hidden">
+          <Menu className="h-5 w-5" />
+        </button>
+
+        <div>
         <p className="text-xs text-gray-400 dark:text-gray-500">Welcome back</p>
         <h2 className="text-base font-semibold text-gray-800 dark:text-white">
           {session?.user?.name} 👋
         </h2>
+      </div>
       </div>
 
       {/* Right side part */}
