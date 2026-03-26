@@ -116,7 +116,7 @@ export default function HomeworkPage() {
         <div className="space-y-6">
 
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex gap-3 lg:gap-0 flex-col md:flex-row lg:flex-row lg:items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">
                         Homework
@@ -127,7 +127,7 @@ export default function HomeworkPage() {
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="flex items-center gap-2 px-4 py-2
+                    className="flex w-fit items-center gap-2 px-4 py-2
                     bg-[#0E9EAD] text-white rounded-lg text-sm
                     font-medium hover:bg-[#0C8A98] transition-colors"
                 >
@@ -299,104 +299,110 @@ export default function HomeworkPage() {
             )}
 
             {/* Homework List */}
-            <div className="bg-card border border-border
-            rounded-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border">
-                    <h2 className="font-semibold text-foreground">
-                        All Homework ({homework.length})
-                    </h2>
-                </div>
+            {/* Homework List */}
+<div className="bg-card border border-border
+rounded-xl overflow-hidden">
+    <div className="px-5 py-4 border-b border-border">
+        <h2 className="font-semibold text-foreground">
+            All Homework ({homework.length})
+        </h2>
+    </div>
 
-                {loading ? (
-                    <div className="px-5 py-8 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            Loading...
-                        </p>
+    {loading ? (
+        <div className="px-5 py-8 text-center">
+            <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+    ) : homework.length === 0 ? (
+        <div className="px-5 py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+                No homework assigned yet.
+            </p>
+        </div>
+    ) : (
+        <div className="divide-y divide-border">
+            {homework.map((hw, i) => {
+                const isPast = new Date(hw.dueDate) < new Date()
+                return (
+                    <div key={hw._id}
+                        className="p-5 hover:bg-accent/20
+                        transition-colors">
+
+                        <div className="flex items-start
+                        justify-between gap-4">
+
+                            {/* Left — content */}
+                            <div className="flex-1 min-w-0">
+
+                                {/* Badges row */}
+                                <div className="flex flex-wrap
+                                items-center gap-2 mb-2">
+                                    <span className="text-xs px-2 py-0.5
+                                    bg-[#0E9EAD]/10 text-[#0E9EAD]
+                                    rounded font-medium">
+                                        {hw.subjectName}
+                                    </span>
+                                    <span className="text-xs px-2 py-0.5
+                                    bg-accent text-muted-foreground
+                                    rounded">
+                                        Class {hw.class} — {hw.section}
+                                    </span>
+                                    <span className={`text-xs px-2 py-0.5
+                                    rounded font-medium ${
+                                        isPast
+                                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                                            : 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                                    }`}>
+                                        {isPast ? 'Completed' : 'Active'}
+                                    </span>
+                                </div>
+
+                                {/* Title */}
+                                <h3 className="text-sm font-semibold
+                                text-foreground mb-1">
+                                    {hw.title}
+                                </h3>
+
+                                {/* Description */}
+                                {hw.description && (
+                                    <p className="text-xs
+                                    text-muted-foreground
+                                    line-clamp-2">
+                                        {hw.description}
+                                    </p>
+                                )}
+
+                                {/* Due date */}
+                                <p className={`text-xs mt-2 font-medium ${
+                                    isPast
+                                        ? 'text-gray-400'
+                                        : 'text-orange-500'
+                                }`}>
+                                    Due: {new Date(hw.dueDate)
+                                        .toLocaleDateString('en-IN', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric'
+                                        })}
+                                </p>
+                            </div>
+
+                            {/* Right — delete button */}
+                            <button
+                                onClick={() => handleDelete(hw._id)}
+                                className="p-2 rounded-lg
+                                bg-red-100 dark:bg-red-900/30
+                                text-red-500 hover:bg-red-200
+                                transition-colors shrink-0"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
-                ) : homework.length === 0 ? (
-                    <div className="px-5 py-8 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            No homework assigned yet.
-                        </p>
-                    </div>
-                ) : (
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-border bg-accent/30">
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">#</th>
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">Title</th>
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">Subject</th>
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">Class</th>
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">Due Date</th>
-                                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">Status</th>
-                                <th className="text-right text-xs font-medium text-muted-foreground px-5 py-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {homework.map((hw, i) => {
-                                const isPast = new Date(hw.dueDate) < new Date()
-                                return (
-                                    <tr key={hw._id}
-                                        className="border-b border-border
-                                        last:border-0 hover:bg-accent/20
-                                        transition-colors">
-                                        <td className="px-5 py-3 text-sm text-muted-foreground">
-                                            {i + 1}
-                                        </td>
-                                        <td className="px-5 py-3">
-                                            <p className="text-sm font-medium text-foreground">
-                                                {hw.title}
-                                            </p>
-                                            {hw.description && (
-                                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                                    {hw.description}
-                                                </p>
-                                            )}
-                                        </td>
-                                        <td className="px-5 py-3 text-sm text-foreground">
-                                            {hw.subjectName}
-                                        </td>
-                                        <td className="px-5 py-3 text-sm text-foreground">
-                                            Class {hw.class} — {hw.section}
-                                        </td>
-                                        <td className="px-5 py-3 text-sm text-foreground">
-                                            {new Date(hw.dueDate)
-                                                .toLocaleDateString('en-IN', {
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric'
-                                                })}
-                                        </td>
-                                        <td className="px-5 py-3">
-                                            <span className={`text-xs px-2 py-1
-                                            rounded-full font-medium ${
-                                                isPast
-                                                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-500'
-                                                    : 'bg-green-100 dark:bg-green-900/30 text-green-600'
-                                            }`}>
-                                                {isPast ? 'Completed' : 'Active'}
-                                            </span>
-                                        </td>
-                                        <td className="px-5 py-3">
-                                            <div className="flex justify-end">
-                                                <button
-                                                    onClick={() => handleDelete(hw._id)}
-                                                    className="p-1.5 rounded-lg
-                                                    bg-red-100 dark:bg-red-900/30
-                                                    text-red-500 hover:bg-red-200
-                                                    transition-colors"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                )
+            })}
+        </div>
+    )}
+</div>
         </div>
     )
 }

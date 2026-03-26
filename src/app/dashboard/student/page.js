@@ -44,7 +44,7 @@ export default function StudentDashboard() {
                     Dashboard
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                    Welcome back, {session?.user?.name} 👋
+                    Welcome back
                 </p>
             </div>
 

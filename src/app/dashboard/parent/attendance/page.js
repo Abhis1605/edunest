@@ -208,23 +208,23 @@ export default function ParentAttendancePage() {
                                         className="border-b border-border
                                         last:border-0 hover:bg-accent/20
                                         transition-colors">
-                                        <td className="px-5 py-3 text-sm text-muted-foreground">
+                                        <td className="px-5 py-3 text-[14px] lg:text-sm text-foreground">
                                             {i + 1}
                                         </td>
-                                        <td className="px-5 py-3 text-sm text-foreground">
+                                        <td className="px-5 py-3 text-[12px] lg:text-sm text-foreground">
                                             {date.toLocaleDateString('en-IN', {
                                                 day: 'numeric',
                                                 month: 'short',
                                                 year: 'numeric'
                                             })}
                                         </td>
-                                        <td className="px-5 py-3 text-sm text-muted-foreground">
+                                        <td className="px-5 py-3 text-[12px] lg:text-sm text-foreground">
                                             {date.toLocaleDateString('en-IN', {
                                                 weekday: 'long'
                                             })}
                                         </td>
                                         <td className="px-5 py-3 text-right">
-                                            <span className={`text-xs px-3 py-1
+                                            <span className={` text-[12px] lg:text-xs px-3 py-1
                                             rounded-full font-medium ${
                                                 isPresent
                                                     ? 'bg-green-100 dark:bg-green-900/30 text-green-600'

@@ -206,7 +206,7 @@ export default function TeachersPage() {
         <div>
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row lg:flex-row gap-4 lg:gap-0 lg:items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">
                         Teachers
@@ -223,7 +223,7 @@ export default function TeachersPage() {
                     setFormData(initialForm)
                     setCredentials(null)
                     setShowDrawer(true)
-            }} className="flex items-center gap-2 px-4 py-2 bg-[#0E9EAD] rounded-lg text-white text-sm font-medium hover:bg-[#0C8A98] transition-colors">
+            }} className="flex w-fit  items-center gap-2 px-4 py-2 bg-[#0E9EAD] rounded-lg text-white text-sm font-medium hover:bg-[#0C8A98] transition-colors">
                 <Plus className="h-4 w-4" />
                 Add Teacher
             </button>

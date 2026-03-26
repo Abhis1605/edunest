@@ -161,7 +161,7 @@ export default function StudentMarksPage() {
                                             return (
                                                 <tr key={j}
                                                     className="border-b border-border last:border-0 hover:bg-accent/20 transition-colors">
-                                                    <td className="px-5 py-3 text-sm text-foreground">
+                                                    <td className="px-5 py-3 text-[12px]  lg:text-sm text-foreground">
                                                         {examTypeLabel[exam.examType]}
                                                     </td>
                                                     <td className="px-5 py-3 text-sm text-right font-medium text-foreground">

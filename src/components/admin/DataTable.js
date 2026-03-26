@@ -1,4 +1,5 @@
 import Spinner from "../shared/Spinner";
+import { Card, CardContent } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 export default function DataTable({
@@ -12,8 +13,12 @@ export default function DataTable({
         )
     }
 
+    const actionCol = columns.find(c => c.key === 'actions')
+    const dataColumns = columns.filter(c => c.key !== 'actions')
+
     return(
-        <div className="overflow-x-auto">
+        <>
+            <div className=" hidden  lg:block overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -37,5 +42,44 @@ export default function DataTable({
                 </TableBody>
             </Table>
         </div>
+
+        {/* Mobile and tablet cards */}
+ <div className="lg:hidden space-y-3">
+                {data.map((row, i) => (
+                    <Card key={row._id || i}>
+                        <CardContent className="p-4 space-y-2">
+
+                            {dataColumns.map((col) => (
+                                <div key={col.key}
+                                    className="flex items-start gap-2">
+                                    <span className="text-xs font-medium
+                                    text-muted-foreground shrink-0 w-24">
+                                        {col.label}
+                                    </span>
+                                    <div className="flex-1 min-w-0
+                                    text-right">
+                                        <div className="text-sm
+                                        text-foreground truncate">
+                                            {col.render
+                                                ? col.render(row)
+                                                : row[col.key]
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {actionCol && (
+                                <div className="pt-2 border-t
+                                border-border flex justify-end">
+                                    {actionCol.render(row)}
+                                </div>
+                            )}
+
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </>
     )
 }

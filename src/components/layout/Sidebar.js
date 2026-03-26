@@ -15,7 +15,8 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    UserCog2Icon
+    UserCog2Icon,
+    X
 } from 'lucide-react'
 import { useState } from "react";
 
@@ -52,7 +53,7 @@ const navLinks = {
     ]
 }
 
-export default function Sidebar({ onToggle }){
+export default function Sidebar({ onToggle, onMobileClose, mobileOpen }){
     const pathname = usePathname()
     const { data: session } = useSession()
     const role = session?.user?.role
@@ -66,10 +67,14 @@ export default function Sidebar({ onToggle }){
     }
 
     return (
-        <div className={`h-screen  bg-white border-r border-gray-200 print:hidden fixed left-0 top-0 flex flex-col transition-all dark:bg-background duration-300 ${isOpen ? 'w-45' : 'w-`10'}`}>
+        <div className={`h-screen bg-white border-r border-gray-200 print:hidden fixed left-0 top-0 flex flex-col transition-all dark:bg-background duration-300 z-40 ${isOpen ? 'w-45' : 'w-20'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        >
            
             {/* Logo Part */}
-            <div className="p-2 border-b border-gray-200 flex justify-center items-center h-22">
+            <div className="p-2 border-b border-gray-200 flex justify-center items-center h-22 relative">
+                <button onClick={onMobileClose} className="absolute right-2 top-2 p-1 text-gray-400 lg:hidden">
+                    <X className="w-5 h-5" />
+                </button>
                 {
                     isOpen ? (
                         <Image src="/Images/logo.png" width={140} height={0} alt='EduNest-logo' className="object-contain" />

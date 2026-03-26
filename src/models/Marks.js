@@ -16,10 +16,14 @@ const MarksSchema = new Schema({
         required: true,
     trim: true,
     },
-    examType: {
+    examTitle: {
         type: String,
-        enum: ['unit1', 'unit2', 'midterm', 'final'],
         required: true,
+        trim: true,
+    },
+    examDate:{
+        type: Date,
+        default: Date.now,
     },
     marks: {
         type: Number,
@@ -44,7 +48,7 @@ const MarksSchema = new Schema({
 
 // prvent duplicate marks for same student same subject same exam
 MarksSchema.index(
-    { studentId: 1, subjectName: 1, examType: 1, class: 1, section: 1},
+    { studentId: 1, subjectName: 1, examTitle: 1, class: 1, section: 1},
     { unique: true }
 )
 

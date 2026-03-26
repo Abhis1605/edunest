@@ -211,14 +211,14 @@ export default function StudentAttendancePage() {
                                         <td className="px-5 py-3 text-sm text-muted-foreground">
                                             {i + 1}
                                         </td>
-                                        <td className="px-5 py-3 text-sm text-foreground">
+                                        <td className="px-5 py-3 text-[12px] lg:text-sm text-foreground">
                                             {date.toLocaleDateString('en-IN', {
                                                 day: 'numeric',
                                                 month: 'short',
                                                 year: 'numeric'
                                             })}
                                         </td>
-                                        <td className="px-5 py-3 text-sm text-muted-foreground">
+                                        <td className="px-5 py-3 text-[12px] lg:text-sm text-foreground">
                                             {date.toLocaleDateString('en-IN', {
                                                 weekday: 'long'
                                             })}
