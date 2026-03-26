@@ -28,7 +28,7 @@ export async function GET() {
 
         const marks = await Marks.find({
             studentId: student._id
-        }).sort({ subjectName: 1, examType: 1 })
+        }).sort({ subjectName: 1, examDate: 1 })
 
         const grouped = {}
         marks.forEach( m => {
@@ -36,9 +36,10 @@ export async function GET() {
                 grouped[m.subjectName] = []
             }
             grouped[m.subjectName].push({
-                examType: m.examType,
+                examTitle: m.examTitle,
                 marks: m.marks,
-                maxMarks: m.maxMarks
+                maxMarks: m.maxMarks,
+                examDate: m.examDate,
             })
         })
 
