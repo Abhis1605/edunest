@@ -135,7 +135,7 @@ export default function ParentDashboard() {
                                             </p>
                                             <p className="text-xs
                                             text-muted-foreground">
-                                                {examTypeLabel[mark.examType]}
+                                                {mark.examTitle}
                                             </p>
                                         </div>
                                         <span className={`text-sm font-bold ${

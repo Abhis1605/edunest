@@ -1,89 +1,112 @@
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "../../auth/[...nextauth]/route";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
-// export async function POST(request) {
-//   try {
-//     const session = await getServerSession(authOptions);
-//     if (!session || session.user.role !== "teacher") {
-//       return Response.json(
-//         {
-//           message: "Unauthorized",
-//         },
-//         { status: 401 },
-//       );
-//     }
+export const runtime = "nodejs"; // important for SDK
 
-//     const body = await request.json();
-//     const { studentName, subjectName, class: cls } = body;
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-//     if (!studentName || !subjectName) {
-//       return Response.json(
-//         {
-//           message: "Student name and subject are required",
-//         },
-//         { status: 400 },
-//       );
-//     }
+export async function POST(request) {
+  try {
+    console.log("API HIT");
 
-//     const prompt = `
-// You are a school teacher writing report card remarks.
+    console.log("API KEY:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 
-// Student: ${studentName}
-// Subject: ${subjectName}
-// Class: ${cls}
+    // Session check
+    const session = await getServerSession(authOptions);
+    console.log("Session:", session);
 
-// Write a natural, human-like remark in 2–3 sentences.
-// Include:
-// - One strength
-// - One improvement suggestion
-// - Subject-specific feedback
+    if (!session || session.user.role !== "teacher") {
+      console.log("Unauthorized access");
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
-// Tone: professional, encouraging, realistic
+    //Body parsing
+    const body = await request.json();
+    console.log("📦 Request Body:", body);
 
-// Output only the remark.
-// `;
+    const { studentName, subjectName, class: cls } = body;
 
-//     const response = await fetch(
-//   `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
-//   {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       contents: [
-//         {
-//           role: "user",
-//           parts: [{ text: prompt }],
-//         },
-//       ],
-//     }),
-//   }
-// );
+    if (!studentName || !subjectName) {
+      console.log("Missing fields");
+      return Response.json(
+        { message: "Student name and subject are required" },
+        { status: 400 }
+      );
+    }
 
-//     const data = await response.json();
-//     console.log("Gemini full response:", JSON.stringify(data));
-//     console.log("Response status:", response.status);
+    //Prompt
+    const prompt = `
+You are a school teacher writing report card remarks for students of classes 8 to 10.
 
-//     const remark = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+Student Name: ${studentName}
+Subject: ${subjectName}
+Class: ${cls}
+Marks: ${body.marks}
+Attendance: ${body.attendance}%
 
-//     if (!remark) {
-//       return Response.json(
-//         {
-//           message: "Failed to generate remark",
-//         },
-//         { status: 500 },
-//       );
-//     }
+Write a short and simple remark (max 2 sentences).
 
-//     return Response.json({ remark });
-//   } catch (error) {
-//     return Response.json(
-//       {
-//         message: "Failed",
-//         error: error.message,
-//       },
-//       { status: 500 },
-//     );
-//   }
-// }
+Rules:
+- Use very simple school-level English (no complex words)
+- Make it sound natural and human, not AI-generated
+- Keep it short (1–2 lines only)
+- Mention performance based on marks:
+  - High marks → praise
+  - Medium → average comment
+  - Low → needs improvement
+- Mention attendance if low (<75%)
+- Add one small suggestion if needed
+
+Tone: friendly and realistic like a school teacher
+
+Output only the remark.
+`;
+
+    console.log("Prompt:", prompt);
+
+    // Model init
+    console.log("Initializing model...");
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
+
+    // API call
+    console.log("Calling Gemini API...");
+    const result = await model.generateContent(prompt);
+
+    console.log("Raw Result:", result);
+
+    const response = await result.response;
+    console.log("Response Object:", response);
+
+    const text = response.text();
+    console.log("Generated Text:", text);
+
+    if (!text) {
+      console.log("Empty response from Gemini");
+      return Response.json(
+        { message: "Failed to generate remark" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Success");
+
+    return Response.json({ remark: text });
+
+  } catch (error) {
+    console.error("ERROR OCCURRED:");
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
+    console.error("Full Error:", error);
+
+    return Response.json(
+      {
+        message: "Failed",
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}

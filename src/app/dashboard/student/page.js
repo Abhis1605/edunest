@@ -28,13 +28,6 @@ export default function StudentDashboard() {
         }
     }
 
-    const examTypeLabel = {
-        unit1: 'Unit Test 1',
-        unit2: 'Unit Test 2',
-        midterm: 'Mid Term',
-        final: 'Final Exam',
-    }
-
     return (
         <div className="space-y-6">
 
@@ -132,7 +125,7 @@ export default function StudentDashboard() {
                                             </p>
                                             <p className="text-xs
                                             text-muted-foreground">
-                                                {examTypeLabel[mark.examType]}
+                                                {mark.examTitle}
                                             </p>
                                         </div>
                                         <span className={`text-sm font-bold ${

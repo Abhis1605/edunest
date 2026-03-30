@@ -11,19 +11,25 @@ export default function RemarksPage() {
     const [selectedSubject, setSelectedSubject] = useState('')
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
     const [fetched, setFetched] = useState(false)
-    const [generatingAI, setGeneratingAI] = useState(null)
 
-    useEffect(() => {
-        fetchAssignments()
-    }, [])
+    // per student: which ones have the add form open
+    const [addingFor, setAddingFor] = useState({}) // { studentId: true }
+    const [newRemark, setNewRemark] = useState({}) // { studentId: text }
+    const [savingFor, setSavingFor] = useState({}) // { studentId: true }
+    const [generatingFor, setGeneratingFor] = useState({}) // { studentId: true }
+
+    // inline edit state
+    const [editingRemark, setEditingRemark] = useState(null) // { remarkId, studentId, content }
+    const [editSaving, setEditSaving] = useState(false)
+
+    useEffect(() => { fetchAssignments() }, [])
 
     const fetchAssignments = async () => {
         try {
             const data = await api.get('/api/teacher/dashboard')
             setAssignments(data.teacher?.assignments || [])
-        } catch (error) {
+        } catch {
             toast.error('Failed to load assignments')
         }
     }
@@ -41,25 +47,58 @@ export default function RemarksPage() {
             )
             setStudents(data.students || [])
             setFetched(true)
-        } catch (error) {
+        } catch {
             toast.error('Failed to load students')
         } finally {
             setLoading(false)
         }
     }
 
-    const handleRemarkChange = (studentId, value) => {
-        setStudents(students.map(s =>
-            s._id === studentId 
-                ? { ...s, remark: value, isAiGenerated: false } 
-                : s
-        ))
+    const toggleAddForm = (studentId) => {
+        setAddingFor(prev => ({ ...prev, [studentId]: !prev[studentId] }))
+        setNewRemark(prev => ({ ...prev, [studentId]: '' }))
+    }
+
+    const handleNewRemarkChange = (studentId, value) => {
+        setNewRemark(prev => ({ ...prev, [studentId]: value }))
+    }
+
+    const handleAddRemark = async (student) => {
+        const content = newRemark[student._id]?.trim()
+        if (!content) { toast.error('Please write a remark'); return }
+
+        setSavingFor(prev => ({ ...prev, [student._id]: true }))
+        try {
+            const data = await api.post('/api/teacher/remarks', {
+                cls: selectedClass,
+                section: selectedSection,
+                subjectName: selectedSubject,
+                studentId: student._id,
+                content,
+                isAiGenerated: false,
+            })
+            // add to local state
+            setStudents(prev => prev.map(s =>
+                s._id === student._id
+                    ? { ...s, remarks: [data.remark, ...s.remarks] }
+                    : s
+            ))
+            setNewRemark(prev => ({ ...prev, [student._id]: '' }))
+            setAddingFor(prev => ({ ...prev, [student._id]: false }))
+            toast.success('Remark added!')
+        } catch {
+            toast.error('Failed to add remark')
+        } finally {
+            setSavingFor(prev => ({ ...prev, [student._id]: false }))
+        }
     }
 
     const generateAIRemark = async (student) => {
-        setGeneratingAI(student._id)
+        setGeneratingFor(prev => ({ ...prev, [student._id]: true }))
+        // open add form if not open
+        setAddingFor(prev => ({ ...prev, [student._id]: true }))
         try {
-            const response = await fetch('/api/teacher/generate-remark', {
+            const res = await fetch('/api/teacher/generate-remark', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -68,94 +107,112 @@ export default function RemarksPage() {
                     class: selectedClass,
                 })
             })
-            const data = await response.json()
-            console.log('AI response', data) 
-
+            const data = await res.json()
             if (!data.remark) {
-                toast.error('No remark generated')
+                toast.error('Failed to generate remark')
+                return
             }
-            setStudents(students.map(s =>
-                s._id === student._id
-                    ? { ...s, remark: data.remark, isAiGenerated: true }
-                    : s
-            ))
+            setNewRemark(prev => ({ ...prev, [student._id]: data.remark }))
             toast.success('AI remark generated!')
-        } catch (error) {
+        } catch {
             toast.error('Failed to generate remark')
         } finally {
-            setGeneratingAI(null)
+            setGeneratingFor(prev => ({ ...prev, [student._id]: false }))
         }
     }
 
-    const handleSubmit = async () => {
-        const unfilled = students.filter(s => !s.remark?.trim())
-        if (unfilled.length > 0) {
-            toast.error(`Please add remarks for all ${unfilled.length} students`)
+    const startEditRemark = (remark, studentId) => {
+        setEditingRemark({ remarkId: remark._id, studentId, content: remark.content })
+    }
+
+    const handleEditSave = async () => {
+        if (!editingRemark.content?.trim()) {
+            toast.error('Remark cannot be empty')
             return
         }
-        setSubmitting(true)
+        setEditSaving(true)
         try {
-            await api.post('/api/teacher/remarks', {
-                cls: selectedClass,
-                section: selectedSection,
-                subjectName: selectedSubject,
-                remarksData: students.map(s => ({
-                    studentId: s._id,
-                    remark: s.remark,
-                    isAiGenerated: s.isAiGenerated || false,
-                }))
+            await api.put('/api/teacher/remarks', {
+                remarkId: editingRemark.remarkId,
+                content: editingRemark.content.trim(),
             })
-            toast.success('Remarks saved successfully!')
-            fetchRemarks()
-        } catch (error) {
-            toast.error('Failed to save remarks')
+            setStudents(prev => prev.map(s =>
+                s._id === editingRemark.studentId
+                    ? {
+                        ...s,
+                        remarks: s.remarks.map(r =>
+                            r._id === editingRemark.remarkId
+                                ? { ...r, content: editingRemark.content.trim(), isAiGenerated: false }
+                                : r
+                        )
+                    }
+                    : s
+            ))
+            toast.success('Remark updated!')
+            setEditingRemark(null)
+        } catch {
+            toast.error('Failed to update remark')
         } finally {
-            setSubmitting(false)
+            setEditSaving(false)
         }
+    }
+
+    const handleDeleteRemark = (remarkId, studentId) => {
+        toast('Delete this remark?', {
+            action: {
+                label: 'Delete',
+                onClick: async () => {
+                    try {
+                        await api.delete(`/api/teacher/remarks?remarkId=${remarkId}`)
+                        setStudents(prev => prev.map(s =>
+                            s._id === studentId
+                                ? { ...s, remarks: s.remarks.filter(r => r._id !== remarkId) }
+                                : s
+                        ))
+                        toast.success('Remark deleted')
+                    } catch {
+                        toast.error('Failed to delete remark')
+                    }
+                }
+            },
+            cancel: { label: 'Cancel', onClick: () => {} }
+        })
     }
 
     const uniqueClasses = [...new Set(assignments.map(a => a.class))]
     const sectionsForClass = assignments
-        .filter(a => a.class === selectedClass)
-        .map(a => a.section)
+        .filter(a => a.class === selectedClass).map(a => a.section)
     const subjectsForClass = assignments
-        .filter(a => a.class === selectedClass && 
-                     a.section === selectedSection)
+        .filter(a => a.class === selectedClass && a.section === selectedSection)
         .map(a => a.subjectName)
 
     return (
         <div className="space-y-6">
-
             <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                    Remarks
-                </h1>
+                <h1 className="text-2xl font-bold text-foreground">Remarks</h1>
                 <p className="text-muted-foreground mt-1">
-                    Add remarks for your students
+                    Add and manage remarks for your students
                 </p>
             </div>
 
             {/* Filter Row */}
             <div className="flex flex-wrap items-end gap-4 p-4
             bg-card border border-border rounded-xl">
-
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Class
-                    </label>
+                    <label className="text-xs text-muted-foreground">Class</label>
                     <select
                         value={selectedClass}
-                        onChange={(e) => {
+                        onChange={e => {
                             setSelectedClass(e.target.value)
                             setSelectedSection('')
                             setSelectedSubject('')
                             setFetched(false)
                             setStudents([])
                         }}
-                        className="text-sm px-3 py-2 rounded-lg
-                        border border-border bg-background
-                        text-foreground focus:outline-none
-                        focus:ring-1 focus:ring-[#0E9EAD] min-w-32"
+                        className="text-sm px-3 py-2 rounded-lg border
+                        border-border bg-background text-foreground
+                        focus:outline-none focus:ring-1
+                        focus:ring-[#0E9EAD] min-w-32"
                     >
                         <option value="">Select Class</option>
                         {uniqueClasses.map(c => (
@@ -165,23 +222,20 @@ export default function RemarksPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Section
-                    </label>
+                    <label className="text-xs text-muted-foreground">Section</label>
                     <select
                         value={selectedSection}
-                        onChange={(e) => {
+                        onChange={e => {
                             setSelectedSection(e.target.value)
                             setSelectedSubject('')
                             setFetched(false)
                             setStudents([])
                         }}
                         disabled={!selectedClass}
-                        className="text-sm px-3 py-2 rounded-lg
-                        border border-border bg-background
-                        text-foreground focus:outline-none
-                        focus:ring-1 focus:ring-[#0E9EAD] min-w-32
-                        disabled:opacity-50"
+                        className="text-sm px-3 py-2 rounded-lg border
+                        border-border bg-background text-foreground
+                        focus:outline-none focus:ring-1
+                        focus:ring-[#0E9EAD] min-w-32 disabled:opacity-50"
                     >
                         <option value="">Select Section</option>
                         {sectionsForClass.map(s => (
@@ -191,22 +245,19 @@ export default function RemarksPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Subject
-                    </label>
+                    <label className="text-xs text-muted-foreground">Subject</label>
                     <select
                         value={selectedSubject}
-                        onChange={(e) => {
+                        onChange={e => {
                             setSelectedSubject(e.target.value)
                             setFetched(false)
                             setStudents([])
                         }}
                         disabled={!selectedSection}
-                        className="text-sm px-3 py-2 rounded-lg
-                        border border-border bg-background
-                        text-foreground focus:outline-none
-                        focus:ring-1 focus:ring-[#0E9EAD] min-w-36
-                        disabled:opacity-50"
+                        className="text-sm px-3 py-2 rounded-lg border
+                        border-border bg-background text-foreground
+                        focus:outline-none focus:ring-1
+                        focus:ring-[#0E9EAD] min-w-36 disabled:opacity-50"
                     >
                         <option value="">Select Subject</option>
                         {subjectsForClass.map(s => (
@@ -219,133 +270,216 @@ export default function RemarksPage() {
                     onClick={fetchRemarks}
                     disabled={loading}
                     className="px-5 py-2 bg-[#0E9EAD] text-white
-                    rounded-lg text-sm font-medium
-                    hover:bg-[#0C8A98] transition-colors
-                    disabled:opacity-50"
+                    rounded-lg text-sm font-medium hover:bg-[#0C8A98]
+                    transition-colors disabled:opacity-50"
                 >
                     {loading ? 'Loading...' : 'Load'}
                 </button>
             </div>
 
-            {/* Remarks Table */}
+            {/* Students */}
             {fetched && (
-                <div className="bg-card border border-border
-                rounded-xl overflow-hidden">
-
-                    {/* Header */}
-                    <div className="flex items-center justify-between
-                    px-5 py-4 border-b border-border">
-                        <div>
-                            <h2 className="font-semibold text-foreground">
-                                {selectedSubject} — Class {selectedClass} {selectedSection}
-                            </h2>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                {students.length} students
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-purple-500" />
-                            <span className="text-xs text-muted-foreground">
-                                Click ✨ to generate AI remark
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Table */}
+                <div className="space-y-4">
                     {students.length === 0 ? (
-                        <div className="px-5 py-8 text-center">
+                        <div className="bg-card border border-border
+                        rounded-xl px-5 py-10 text-center">
                             <p className="text-sm text-muted-foreground">
                                 No students found.
                             </p>
                         </div>
-                    ) : (
-                        <div className="divide-y divide-border">
-                            {students.map((student, i) => (
-                                <div key={student._id}
-                                    className="px-5 py-4 hover:bg-accent/20
-                                    transition-colors">
-                                    <div className="flex items-start
-                                    justify-between gap-4">
-                                        <div className="flex items-center
-                                        gap-3 min-w-32">
-                                            <span className="text-xs
-                                            text-muted-foreground w-5">
-                                                {i + 1}
-                                            </span>
-                                            <div>
-                                                <p className="text-sm
-                                                font-medium text-foreground">
-                                                    {student.name}
-                                                </p>
-                                                {student.isAiGenerated && (
-                                                    <span className="text-xs
-                                                    text-purple-500 flex
-                                                    items-center gap-1">
-                                                        <Sparkles className="h-3 w-3" />
-                                                        AI generated
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+                    ) : students.map((student, i) => (
+                        <div key={student._id}
+                            className="bg-card border border-border
+                            rounded-xl overflow-hidden">
 
-                                        <div className="flex-1 flex
-                                        items-start gap-2">
-                                            <textarea
-                                                value={student.remark}
-                                                onChange={(e) => handleRemarkChange(
-                                                    student._id, e.target.value
-                                                )}
-                                                placeholder="Write a remark..."
-                                                rows={2}
-                                                className="flex-1 text-sm
-                                                px-3 py-2 rounded-lg border
-                                                border-border bg-background
-                                                text-foreground focus:outline-none
-                                                focus:ring-1 focus:ring-[#0E9EAD]
-                                                resize-none"
-                                            />
-                                            <button
-                                                onClick={() => generateAIRemark(student)}
-                                                disabled={generatingAI === student._id}
-                                                title="Generate AI Remark"
-                                                className="p-2 rounded-lg
-                                                bg-purple-100 dark:bg-purple-900/30
-                                                text-purple-500 hover:bg-purple-200
-                                                transition-colors disabled:opacity-50
-                                                shrink-0"
-                                            >
-                                                <Sparkles className={`h-4 w-4 ${
-                                                    generatingAI === student._id
-                                                        ? 'animate-spin'
-                                                        : ''
-                                                }`} />
-                                            </button>
-                                        </div>
+                            {/* Student header */}
+                            <div className="flex items-center justify-between
+                            px-5 py-4 border-b border-border">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs text-muted-foreground w-5">
+                                        {i + 1}
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-semibold text-foreground">
+                                            {student.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {student.remarks.length} remark{student.remarks.length !== 1 ? 's' : ''}
+                                        </p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => generateAIRemark(student)}
+                                        disabled={!!generatingFor[student._id]}
+                                        title="Generate AI Remark"
+                                        className="p-2 rounded-lg bg-purple-100
+                                        dark:bg-purple-900/30 text-purple-500
+                                        hover:bg-purple-200 transition-colors
+                                        disabled:opacity-50"
+                                    >
+                                        <Sparkles className={`h-4 w-4 ${
+                                            generatingFor[student._id] ? 'animate-spin' : ''
+                                        }`} />
+                                    </button>
+                                    <button
+                                        onClick={() => toggleAddForm(student._id)}
+                                        className="text-xs px-3 py-1.5 rounded-lg
+                                        bg-[#0E9EAD] text-white hover:bg-[#0C8A98]
+                                        transition-colors"
+                                    >
+                                        {addingFor[student._id] ? 'Cancel' : '+ Add'}
+                                    </button>
+                                </div>
+                            </div>
 
-                    {/* Submit Footer */}
-                    {students.length > 0 && (
-                        <div className="px-5 py-4 border-t border-border
-                        flex items-center justify-between bg-accent/20">
-                            <p className="text-sm text-muted-foreground">
-                                {students.filter(s => s.remark?.trim()).length} of {students.length} remarks filled
-                            </p>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={submitting}
-                                className="px-6 py-2 bg-[#0E9EAD]
-                                text-white rounded-lg text-sm font-medium
-                                hover:bg-[#0C8A98] transition-colors
-                                disabled:opacity-50"
-                            >
-                                {submitting ? 'Saving...' : 'Save Remarks'}
-                            </button>
+                            {/* Add remark form */}
+                            {addingFor[student._id] && (
+                                <div className="px-5 py-4 border-b border-border
+                                bg-accent/10">
+                                    <textarea
+                                        value={newRemark[student._id] || ''}
+                                        onChange={e => handleNewRemarkChange(
+                                            student._id, e.target.value
+                                        )}
+                                        placeholder="Write a remark..."
+                                        rows={3}
+                                        className="w-full text-sm px-3 py-2
+                                        rounded-lg border border-border
+                                        bg-background text-foreground
+                                        focus:outline-none focus:ring-1
+                                        focus:ring-[#0E9EAD] resize-none"
+                                    />
+                                    <div className="flex justify-end gap-2 mt-2">
+                                        <button
+                                            onClick={() => toggleAddForm(student._id)}
+                                            className="px-4 py-1.5 bg-accent
+                                            text-foreground rounded-lg text-sm
+                                            hover:bg-accent/80 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => handleAddRemark(student)}
+                                            disabled={!!savingFor[student._id]}
+                                            className="px-4 py-1.5 bg-[#0E9EAD]
+                                            text-white rounded-lg text-sm font-medium
+                                            hover:bg-[#0C8A98] transition-colors
+                                            disabled:opacity-50"
+                                        >
+                                            {savingFor[student._id] ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Remarks list */}
+                            {student.remarks.length === 0 ? (
+                                <div className="px-5 py-6 text-center">
+                                    <p className="text-xs text-muted-foreground">
+                                        No remarks yet. Click "+ Add" to write one.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-border">
+                                    {student.remarks.map(remark => (
+                                        <div key={remark._id} className="px-5 py-4">
+                                            {editingRemark?.remarkId === remark._id ? (
+                                                // inline edit
+                                                <div>
+                                                    <textarea
+                                                        value={editingRemark.content}
+                                                        onChange={e => setEditingRemark(prev => ({
+                                                            ...prev,
+                                                            content: e.target.value
+                                                        }))}
+                                                        rows={3}
+                                                        className="w-full text-sm px-3 py-2
+                                                        rounded-lg border border-border
+                                                        bg-background text-foreground
+                                                        focus:outline-none focus:ring-1
+                                                        focus:ring-[#0E9EAD] resize-none"
+                                                    />
+                                                    <div className="flex justify-end gap-2 mt-2">
+                                                        <button
+                                                            onClick={() => setEditingRemark(null)}
+                                                            className="px-4 py-1.5 bg-accent
+                                                            text-foreground rounded-lg text-sm
+                                                            hover:bg-accent/80 transition-colors"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            onClick={handleEditSave}
+                                                            disabled={editSaving}
+                                                            className="px-4 py-1.5 bg-[#0E9EAD]
+                                                            text-white rounded-lg text-sm
+                                                            font-medium hover:bg-[#0C8A98]
+                                                            transition-colors disabled:opacity-50"
+                                                        >
+                                                            {editSaving ? 'Saving...' : 'Update'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                // read view
+                                                <div className="flex items-start
+                                                justify-between gap-4">
+                                                    <div className="flex-1">
+                                                        <p className="text-sm text-foreground
+                                                        leading-relaxed">
+                                                            {remark.content}
+                                                        </p>
+                                                        <div className="flex items-center
+                                                        gap-2 mt-1.5">
+                                                            <span className="text-xs
+                                                            text-muted-foreground">
+                                                                {new Date(remark.createdAt)
+                                                                    .toLocaleDateString('en-IN', {
+                                                                        day: 'numeric',
+                                                                        month: 'short',
+                                                                        year: 'numeric'
+                                                                    })}
+                                                            </span>
+                                                            {remark.isAiGenerated && (
+                                                                <span className="text-xs
+                                                                text-purple-500 flex
+                                                                items-center gap-1">
+                                                                    <Sparkles className="h-3 w-3" />
+                                                                    AI
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 shrink-0">
+                                                        <button
+                                                            onClick={() => startEditRemark(remark, student._id)}
+                                                            className="text-xs px-2.5 py-1
+                                                            rounded-md bg-accent text-foreground
+                                                            hover:bg-accent/80 transition-colors"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteRemark(
+                                                                remark._id, student._id
+                                                            )}
+                                                            className="text-xs px-2.5 py-1
+                                                            rounded-md bg-red-100
+                                                            dark:bg-red-900/30 text-red-500
+                                                            hover:bg-red-200 transition-colors"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    ))}
                 </div>
             )}
         </div>
