@@ -11,107 +11,73 @@ export async function GET(request) {
 
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "teacher") {
-      return Response.json(
-        {
-          message: "Unauthorized",
-        },
-        { status: 401 },
-      );
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const teacher = await Teacher.findOne({
+      userId: session.user.id,
+      isActive: true,
+    });
+    if (!teacher) {
+      return Response.json({ message: "Teacher not found" }, { status: 404 });
     }
 
     const { searchParams } = new URL(request.url);
     const cls = searchParams.get("class");
     const section = searchParams.get("section");
-    const subjectName = searchParams.get("subject")
+    const subjectName = searchParams.get("subject");
 
-    if (!cls || !section || !subjectName) {
-      return Response.json(
-        {
-          message: "All fields are required",
-        },
-        { status: 400 },
-      );
+    const query = { teacherId: teacher._id };
+    if (cls) query.class = cls;
+    if (section) query.section = section;
+    if (subjectName) query.subjectName = subjectName;
+
+    const existingMarks = await Marks.find(query).lean();
+
+    let students = [];
+    if (cls && section) {
+      const studentDocs = await Student.find({
+        class: cls,
+        section,
+        isActive: true,
+      })
+        .populate("userId", "name")
+        .sort({ createdAt: 1 });
+
+      students = studentDocs.map((s) => ({
+        _id: s._id,
+        name: s.userId?.name,
+      }));
     }
 
-    // Get teacher
-    const teacher = await Teacher.findOne({
-      userId: session.user.id,
-      isActive: true,
-    });
-
-    if (!teacher) {
-      return Response.json(
-        {
-          message: "Teacher not found",
-        },
-        { status: 404 },
-      );
+    // group marks by examTitle
+    const examMap = {};
+    for (const m of existingMarks) {
+      const key = `${m.examTitle}||${m.class}||${m.section}||${m.subjectName}`;
+      if (!examMap[key]) {
+        examMap[key] = {
+          examTitle: m.examTitle,
+          class: m.class,
+          section: m.section,
+          subjectName: m.subjectName,
+          maxMarks: m.maxMarks,
+          examDate: m.examDate,
+          marksMap: {},
+        };
+      }
+      examMap[key].marksMap[m.studentId.toString()] = m.marks;
     }
-
-    // Check teacher is assigned to this class and subject or not
-    const isAssigned = teacher.assignments.some(
-      (a) =>
-        a.class === cls &&
-        a.section === section &&
-        a.subjectName === subjectName,
-    );
-
-    if (!isAssigned) {
-      return Response.json(
-        {
-          message: "You are not assigned to this class/subject",
-        },
-        { status: 403 },
-      );
-    }
-
-    const students = await Student.find({
-      class: cls,
-      section,
-      isActive: true,
-    })
-      .populate("userId", "name")
-      .sort({ createdAt: 1 });
-
-    const existingMarks = await Marks.find({
-      class: cls,
-      section,
-      subjectName,
-      teacherId: teacher._id,
-    });
-
-    const examTitles = [...new Set(existingMarks.map((m) => m.examTitle))];
-
-    const marksMap = {};
-    existingMarks.forEach((m) => {
-      marksMap[m.studentId.toString()] = m.marks;
-    });
-
-    const studentsWithMarks = students.map((s) => ({
-      _id: s._id,
-      name: s.userId?.name,
-      marks: marksMap[s._id.toString()] ?? "",
-    }));
 
     return Response.json({
-      students: studentsWithMarks,
-      examTitles,
-      rawMarks: existingMarks.map((m) => ({
-        studentId: m.studentId,
-        examTitle: m.examTitle,
-        marks: m.marks,
-        maxMarks: m.maxMarks,
-        examDate: m.examDate,
-      })),
+      exams: Object.values(examMap),
+      students,
+      assignments: teacher.assignments,
     });
   } catch (error) {
-    console.error('Marks get error', error)
+    console.error("Marks get error", error);
     return Response.json(
-      {
-        message: "Failed",
-        error: error.message,
-      },
-      { status: 500 },
+      { message: "Failed", error: error.message },
+      { status: 500 }
     );
   }
 }
@@ -200,4 +166,42 @@ export async function POST(request) {
       { status: 500 },
     );
   }
+}
+
+export async function DELETE(request) {
+    try {
+        await connectDB()
+
+        const session = await getServerSession(authOptions)
+        if (!session || session.user.role !== 'teacher') {
+            return Response.json({ message: 'Unauthorized' }, { status: 401 })
+        }
+
+        const { searchParams } = new URL(request.url)
+        const cls = searchParams.get('class')
+        const section = searchParams.get('section')
+        const subjectName = searchParams.get('subject')
+        const examTitle = searchParams.get('examTitle')
+
+        if (!cls || !section || !subjectName || !examTitle) {
+            return Response.json({ message: 'All fields required' }, { status: 400 })
+        }
+
+        const teacher = await Teacher.findOne({ userId: session.user.id, isActive: true })
+        if (!teacher) {
+            return Response.json({ message: 'Teacher not found' }, { status: 404 })
+        }
+
+        await Marks.deleteMany({
+            class: cls,
+            section,
+            subjectName,
+            examTitle,
+            teacherId: teacher._id
+        })
+
+        return Response.json({ message: 'Exam deleted successfully' })
+    } catch (error) {
+        return Response.json({ message: 'Failed', error: error.message }, { status: 500 })
+    }
 }

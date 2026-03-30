@@ -28,13 +28,6 @@ export default function StudentReportPage() {
         window.print()
     }
 
-    const examTypeLabel = {
-        unit1: 'Unit Test 1',
-        unit2: 'Unit Test 2',
-        midterm: 'Mid Term',
-        final: 'Final Exam',
-    }
-
     const getGrade = (percentage) => {
         if (percentage >= 90) return 'A+'
         if (percentage >= 80) return 'A'
@@ -314,7 +307,7 @@ export default function StudentReportPage() {
                                                         {j === 0 ? subject.subject : ''}
                                                     </td>
                                                     <td className="px-3 py-2 text-gray-600">
-                                                        {examTypeLabel[exam.examType]}
+                                                        {exam.examTitle}
                                                     </td>
                                                     <td className="px-3 py-2 text-center font-semibold text-gray-800">
                                                         {exam.marks}

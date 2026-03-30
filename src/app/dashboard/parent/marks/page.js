@@ -24,13 +24,6 @@ export default function ParentMarksPage() {
         }
     }
 
-    const examTypeLabel = {
-        unit1: 'Unit Test 1',
-        unit2: 'Unit Test 2',
-        midterm: 'Mid Term',
-        final: 'Final Exam',
-    }
-
     const getGrade = (percentage) => {
         if (percentage >= 90) return { grade: 'A+', color: 'text-green-500' }
         if (percentage >= 80) return { grade: 'A', color: 'text-green-500' }
@@ -157,7 +150,7 @@ export default function ParentMarksPage() {
                                                 <tr key={j}
                                                     className="border-b border-border last:border-0 hover:bg-accent/20 transition-colors">
                                                     <td className="px-5 py-3 text-sm text-foreground">
-                                                        {examTypeLabel[exam.examType]}
+                                                        {exam.examTitle}
                                                     </td>
                                                     <td className="px-5 py-3 text-sm text-right font-medium text-foreground">
                                                         {exam.marks}/{exam.maxMarks}
