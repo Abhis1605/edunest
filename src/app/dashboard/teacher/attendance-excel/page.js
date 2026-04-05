@@ -14,7 +14,6 @@ export default function AttendanceExcelPage() {
 
     useEffect(() => {
         fetchAssignments()
-        // Set default date range — current month
         const now = new Date()
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
         const today = new Date()
@@ -56,7 +55,6 @@ export default function AttendanceExcelPage() {
                 return
             }
 
-            // Download file
             const blob = await response.blob()
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
@@ -200,29 +198,6 @@ export default function AttendanceExcelPage() {
                         </div>
                     </div>
                 )}
-
-                {/* What Excel Contains */}
-                <div className="bg-accent/50 rounded-xl p-4">
-                    <p className="text-sm font-medium text-foreground mb-2">
-                        Excel file will contain:
-                    </p>
-                    <ul className="space-y-1">
-                        {[
-                            'Student names with Sr No',
-                            'Date wise attendance — P (Present) / A (Absent)',
-                            'Total present and absent days',
-                            'Attendance percentage',
-                            'Color coded — Green for Present, Red for Absent',
-                        ].map((item, i) => (
-                            <li key={i} className="text-xs
-                            text-muted-foreground flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full
-                                bg-[#0E9EAD] shrink-0" />
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
 
                 {/* Download Button */}
                 <button
