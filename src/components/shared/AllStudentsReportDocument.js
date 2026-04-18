@@ -1,3 +1,4 @@
+import { LOGO_BASE64 } from '@/lib/logoBase64'
 import {
     Document, Page, Text, View, StyleSheet,
     Image, Svg, Rect, Line, G, Path
@@ -12,7 +13,6 @@ const LIGHT_GRAY = '#f8f9fa'
 const BORDER = '#e5e7eb'
 const DARK = '#111827'
 const MID = '#374151'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
 const styles = StyleSheet.create({
     page: {
@@ -273,7 +273,7 @@ function StudentPage({ report }) {
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
                     <View style={styles.logoBg}>
-                        <Image src={`${BASE_URL}/Images/logo.png`} style={styles.logo} />
+                        <Image src={LOGO_BASE64} style={styles.logo} />
                     </View>
                     <View>
                         <Text style={styles.headerTitle}>EduNest</Text>
