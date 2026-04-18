@@ -448,7 +448,7 @@ export function StudentReportDocument({ report }) {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.logoBg}>
-              <Image src={`Images/logo.png`} style={styles.logo} />
+              <Image src={`${BASE_URL}/Images/logo.png`} style={styles.logo} />
             </View>
             <View>
               <Text style={styles.headerTitle}>EduNest</Text>

@@ -1,5 +1,4 @@
-import { Section } from "lucide-react";
-import mongoose, { mongo, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const AssignmentSchema = new Schema({
     subjectName: {
