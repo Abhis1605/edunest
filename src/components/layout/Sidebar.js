@@ -77,9 +77,9 @@ export default function Sidebar({ onToggle, onMobileClose, mobileOpen }){
                 </button>
                 {
                     isOpen ? (
-                        <Image src="/Images/logo.png" width={140} height={0} alt='EduNest-logo' className="object-contain" />
+                        <Image src="/Images/logo.png" width={140} height={0} priority alt='EduNest-logo' className="object-contain" />
                     ) : (
-                        <Image src="/Images/logo-sidebar.png" width={50} height={50} alt='EduNest-logo' className="object-contain" />
+                        <Image src="/Images/logo-sidebar.png" width={50} height={50} priority alt='EduNest-logo' className="object-contain" />
                     )
                 }
             </div>

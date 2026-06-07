@@ -22,7 +22,6 @@ const LIGHT_GRAY = "#f8f9fa";
 const BORDER = "#e5e7eb";
 const DARK = "#111827";
 const MID = "#374151";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 const styles = StyleSheet.create({
   page: {
